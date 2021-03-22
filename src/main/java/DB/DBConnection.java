@@ -28,7 +28,7 @@ public class DBConnection {
         //If connection was closed then retrieve a new connection
         if (conn.isClosed()) {
             System.out.println("Opening new connection...");
-            conn = DriverManager.getConnection("jdbc:h2:" + "./Database/my", "sa", "");
+            conn = DriverManager.getConnection(jdbcUrl,"sa" ,"");
         }
         return conn;
     }

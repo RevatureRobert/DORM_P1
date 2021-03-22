@@ -1,4 +1,4 @@
-package Tables;
+package TestTables;
 
 import Annotations.Entity;
 import Annotations.FieldName;

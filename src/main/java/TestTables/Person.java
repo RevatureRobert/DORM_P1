@@ -1,11 +1,11 @@
-package Tables;
+package TestTables;
 
 import Annotations.Entity;
 import Annotations.FieldName;
 import Annotations.PrimaryKey;
 
 import java.time.LocalDate;
-import java.util.Calendar;
+
 @Entity
 public class Person {
 
