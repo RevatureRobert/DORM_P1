@@ -9,14 +9,14 @@ import java.util.*;
 public class TableModel {
 
     Class clazz;
-    Field[] fields;
+    Field[] allFields;
+    List<Field> columns = new ArrayList<>();
 
-    Map<String, String> types = new HashMap<>();
 
     public TableModel(Class clazz) {
-        initlizeMap();
         this.clazz = clazz;
-        this.fields = clazz.getDeclaredFields();
+        this.allFields = clazz.getDeclaredFields();
+        this.setColumns();
     }
 
     public TableModel() {
@@ -31,17 +31,30 @@ public class TableModel {
         this.clazz = clazz;
     }
 
-    public Field[] getFields() {
-        return fields;
+    public Field[] getAllFields() {
+        return allFields;
     }
 
-    public void setFields(Field[] fields) {
-        this.fields = fields;
+    private void setColumns() {
+        for(Field field : allFields){
+            if(field.isAnnotationPresent(PrimaryKey.class) || field.isAnnotationPresent(FieldName.class))
+                columns.add(field);
+        }
+
+    }
+
+    public List<Field> getColumns(){
+        return this.columns;
+    }
+
+    public void setAllFields(Field[] allFields) {
+
+        this.allFields = allFields;
     }
 
     public List<Field> getPrimaryKeys() {
         List<Field> list = new LinkedList();
-        for (Field field : this.fields) {
+        for (Field field : this.allFields) {
             if (field.isAnnotationPresent(PrimaryKey.class)) {
                 list.add(field);
             }
@@ -49,29 +62,37 @@ public class TableModel {
         return list;
     }
 
-    public List getFieldNames() {
-        List<String> list = new LinkedList();
-        for (Field field : this.fields) {
+    public List<Field> getFieldNames() {
+        List<Field> list = new LinkedList();
+        for (Field field : this.allFields) {
             if (field.isAnnotationPresent(FieldName.class)) {
-                list.add(field.getName());
+                list.add(field);
             }
         }
         return list;
     }
 
     public void printPrimaryKeys() {
-        System.out.println(getPrimaryKeys());
+        for(Field field : getPrimaryKeys()){
+            System.out.println(field.getName());
+        }
     }
 
     public void printFieldNames() {
-        System.out.println(getFieldNames());
+
+        for(Field field : getFieldNames()){
+            System.out.println(field.getName());
+        }
     }
 
     public void printColumns() {
-        System.out.println("Primary Keys ");
+        System.out.println("Primary Keys");
+        System.out.println("------------");
         printPrimaryKeys();
         System.out.println();
+        System.out.println();
         System.out.println("Fields");
+        System.out.println("------");
         printFieldNames();
     }
 
@@ -83,19 +104,6 @@ public class TableModel {
 
     public Class getFieldtype(Field field) {
         return field.getType();
-    }
-
-    // if the field has a primary key it needs to be added
-    // If it has other constraints add them so i gotta check what the field has and then return accordingly
-    public String getSQlCreateQuery(Field field) {
-        if(field.isAnnotationPresent(FieldName.class)){
-            return field.getName() + " " + getSQLType(field.getType().getSimpleName());
-        }
-        else if (field.isAnnotationPresent(PrimaryKey.class)){
-            return field.getName() + " " + getSQLType(field.getType().getSimpleName()) + " Primary key";
-        }
-
-        return field.getName() + " " + getSQLType(field.getType().getSimpleName());
     }
 
 
@@ -118,24 +126,13 @@ public class TableModel {
         return null;
     }
 
-    // Not sure what to do about the String
-    // Can always add and adjust
-    public void initlizeMap() {
-        types.put("String", "varchar(512)");
-        types.put("int", "int");
-        types.put("long", "BigInt");
-        types.put("float", "Real");
-        types.put("double", "double");
-        types.put("byte[]", "LongVarBinary");
-        types.put("Date", "Date");
-        types.put("Time", "Time");
-        types.put("TimeStamp", "TimeStamp");
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TableModel)) return false;
+        TableModel that = (TableModel) o;
+        return Objects.equals(getClazz(), that.getClazz()) && Arrays.equals(getAllFields(), that.getAllFields()) ;
     }
 
 
-    // Having a map to store all the types and how they correspond to the SQl data type
-    // The key is the Java Object and the value is the SQL data Type
-    public String getSQLType(String type) {
-        return this.types.get(type);
-    }
 }

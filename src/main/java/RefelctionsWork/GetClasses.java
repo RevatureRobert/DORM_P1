@@ -6,12 +6,11 @@ import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 
-import java.util.ArrayList;
 import java.util.Set;
 
 public class GetClasses {
 
-    public static Set getEntities(){
+    public static Set<Class<?>> getEntities(){
         Reflections reflections = new Reflections("", new TypeAnnotationsScanner(),
                 new SubTypesScanner(), new FieldAnnotationsScanner());
 

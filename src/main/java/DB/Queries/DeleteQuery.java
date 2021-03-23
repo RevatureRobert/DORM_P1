@@ -42,7 +42,7 @@ public class DeleteQuery {
     }
 
 
-    public static int executeDelete(TableModel table) {
+    public static <T> int executeDelete(T obj ,TableModel table) {
         buildInsert(table);
         System.out.println(sql);
 //        Connection connection = null;

@@ -1,24 +1,31 @@
 import DAO.BasicDao;
+import Models.Database;
 import Models.TableModel;
 import RefelctionsWork.GetClasses;
 
+import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.Set;
 
 public class Driver {
 
     public static void main(String[] args) {
-       Set<Class<?>> classes =GetClasses.getEntities();
-       LinkedList<TableModel> tables = new LinkedList<>();
-       for(Class clazz :classes){
-           tables.add(new TableModel(clazz));
-       }
 
-       BasicDao playToy = new BasicDao();
-//       playToy.CreateTable(tables.getFirst());
-     //  playToy.insertIntoTable(tables.getFirst());
-//       new BasicDao().insertIntoTable(tables.getFirst());
-        System.out.println( playToy.delete(tables.getFirst()));
+
+
+        Database db = new Database();
+        db.createTable(db.tables.get(0));
+        db.insertIntoTable(db.tables.getFirst().getTableName() , db.tables.get(1).getAllFields());
+        db.updateTable("car", "year" , "1997" ,db.tables.get(0).getAllFields() );
+
+
+
+//
+//       BasicDao playToy = new BasicDao();
+////       playToy.CreateTable(tables.getFirst());
+//     //  playToy.insertIntoTable(tables.getFirst());
+////       new BasicDao().insertIntoTable(tables.getFirst());
+//        System.out.println( playToy.delete(tables.getFirst()));
 
 //       for(int i = 0; i < tables.size();i++){
 //           System.out.println(tables.get(i).getTableName());

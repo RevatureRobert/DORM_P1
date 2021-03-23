@@ -4,6 +4,7 @@ import DB.Queries.*;
 import Models.TableModel;
 
 import javax.swing.table.DefaultTableModel;
+import java.lang.reflect.Field;
 
 public class BasicDao implements DAOUtil{
     @Override
@@ -19,6 +20,11 @@ public class BasicDao implements DAOUtil{
     @Override
     public <T> boolean insertIntoTable(T obj) {
         return InsertQuery.executeInsert((TableModel)obj);
+    }
+
+    public <T>  boolean insertIntoTable(T obj , TableModel table){
+
+        return InsertQuery.executeInsert(obj , table);
     }
 
     @Override
@@ -46,17 +52,25 @@ public class BasicDao implements DAOUtil{
     // might be for everyone but not sure
     // I dont know what im doing
     @Override
-    public <T> int delete(T obj) {
-        TableModel tableModel = new TableModel();
-        if( tableModel.getClass() != obj.getClass()){
-            return -2;
-        }
-        return DeleteQuery.executeDelete((TableModel) obj);
+    public <T> int delete(T obj, TableModel table) {
+//        TableModel tableModel = new TableModel();
+//        if( tableModel.getClass() != obj.getClass()){
+//            return -2;
+//        }
+        return DeleteQuery.executeDelete( obj , table);
     }
 
     @Override
     public int deleteById(int id) {
         return 0;
+    }
+
+    public boolean insertIntoTable(String tableName , Field... fields){
+        return InsertQuery.executeInsert(tableName ,fields);
+    }
+
+    public int updateTable(String tableName ,String colName, String colVal , Field... fields){
+        return UpdateQuery.executeUpdate(tableName ,colName ,colVal ,fields);
     }
 
 
