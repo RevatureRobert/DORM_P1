@@ -1,22 +1,67 @@
-import DAO.BasicDao;
+import DB.ConnectionPool.BasicConnPool;
+import DB.ConnectionPool.ConnectionPool2;
 import Models.Database;
 import Models.TableModel;
-import RefelctionsWork.GetClasses;
+import Threads.MakeThreadPool;
 
-import java.lang.reflect.Field;
-import java.util.LinkedList;
-import java.util.Set;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static junit.framework.TestCase.assertTrue;
 
 public class Driver {
 
+    private static Logger log = Logger.getLogger(String.valueOf(Driver.class));
     public static void main(String[] args) {
 
+        Logger.getAnonymousLogger().setLevel(Level.OFF);
+
+
+
+
+
+        // Need to implement a create a new Field option for alter ?
+
+        // How to do the pooling
+        // Need a pool of DB connections
+        // Need a pool of threads
+        // Maybe each Db connection gets its own thread pool
 
 
         Database db = new Database();
-        db.createTable(db.tables.get(0));
-        db.insertIntoTable(db.tables.getFirst().getTableName() , db.tables.get(1).getAllFields());
-        db.updateTable("car", "year" , "1997" ,db.tables.get(0).getAllFields() );
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        db.showAll(db.getTable("car"));
+        MakeThreadPool.executorService.shutdown();
+
+
+//        TableModel table = db.getTable("Person");
+//        System.out.println(table.getTableName());
+//        System.out.println(table.getFields("fname","lname")[0].getName());
+
+//        db.createTable(db.tables.get(0));
+//        db.insertIntoTable(db.tables.getFirst().getTableName() , db.tables.get(1).getAllFields());
+////        //db.updateTable("car", "year" , "1997" ,db.tables.get(0).getAllFields() );
+//        db.readTable(db.getTable("car"), db.getTable("car").getAllFields());
+
 
 
 

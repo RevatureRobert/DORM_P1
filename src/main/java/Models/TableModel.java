@@ -4,6 +4,7 @@ import Annotations.FieldName;
 import Annotations.PrimaryKey;
 
 import java.lang.reflect.Field;
+import java.nio.file.PathMatcher;
 import java.util.*;
 
 public class TableModel {
@@ -36,14 +37,14 @@ public class TableModel {
     }
 
     private void setColumns() {
-        for(Field field : allFields){
-            if(field.isAnnotationPresent(PrimaryKey.class) || field.isAnnotationPresent(FieldName.class))
+        for (Field field : allFields) {
+            if (field.isAnnotationPresent(PrimaryKey.class) || field.isAnnotationPresent(FieldName.class))
                 columns.add(field);
         }
 
     }
 
-    public List<Field> getColumns(){
+    public List<Field> getColumns() {
         return this.columns;
     }
 
@@ -73,14 +74,14 @@ public class TableModel {
     }
 
     public void printPrimaryKeys() {
-        for(Field field : getPrimaryKeys()){
+        for (Field field : getPrimaryKeys()) {
             System.out.println(field.getName());
         }
     }
 
     public void printFieldNames() {
 
-        for(Field field : getFieldNames()){
+        for (Field field : getFieldNames()) {
             System.out.println(field.getName());
         }
     }
@@ -99,7 +100,6 @@ public class TableModel {
     public String getTableName() {
         return this.clazz.getSimpleName();
     }
-
 
 
     public Class getFieldtype(Field field) {
@@ -126,13 +126,51 @@ public class TableModel {
         return null;
     }
 
+    public Field[] getFields(String... fieldNames) {
+        Field[] fields = new Field[fieldNames.length];
+        for (int i = 0; i < fieldNames.length; i++) {
+            if (isField(fieldNames[i])) {
+                fields[i] = (getField(fieldNames[i]));
+            }
+        }
+        return fields;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TableModel)) return false;
         TableModel that = (TableModel) o;
-        return Objects.equals(getClazz(), that.getClazz()) && Arrays.equals(getAllFields(), that.getAllFields()) ;
+        return Objects.equals(getClazz(), that.getClazz()) && Arrays.equals(getAllFields(), that.getAllFields());
     }
 
+    private boolean isField(String field) {
+        if (getFieldNames().contains(getField(field))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
+    private Field getField(String fieldName) {
+        for (Field field : getAllFields()) {
+            if (field.getName().equals(fieldName)) {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return "TableModel{" +
+                "clazz=" + clazz +
+                ", allFields=" + Arrays.toString(allFields) +
+                ", columns=" + columns +
+                '}';
+    }
+
+    public void printField(Field field) {
+        System.out.println("Field name" + field.getName());
+    }
 }

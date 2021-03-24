@@ -1,17 +1,24 @@
 package DB.Queries;
 
-import DB.DBConnection;
+import DB.ConnectionPool.DBConnection;
+import Models.Database;
 import Models.TableModel;
+import Threads.MakeThreadPool;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class InsertQuery {
 
     static StringBuilder sql = new StringBuilder();
     static PreparedStatement preparedStatement;
+    static int queryResult;
 
 
     public InsertQuery() {
@@ -78,50 +85,99 @@ public class InsertQuery {
 
 
     public static boolean executeInsert(TableModel table) {
-        buildInsert(table);
-        System.out.println(sql);
-        Connection connection = null;
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildInsert(table);
+            Connection conn = new Database().getaccessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            int rs = preparedStatement.executeUpdate();
+
+            return rs;
+        });
+
+
         try {
-            connection = DBConnection.getConnection();
-            preparedStatement = connection.prepareStatement(sql.toString());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+            queryResult = (int) future.get();
+
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return false;
         }
-        return true;
+
+        if (queryResult > 0) {
+            System.out.println(queryResult);
+            return true;
+        }
+
+        System.out.println("Reached the bottom not sure why");
+        return false;
 
     }
 
     public static <T> boolean executeInsert(T obj, TableModel table) {
-        buildInsert(obj, table);
-        System.out.println(sql);
-        Connection connection = null;
+
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildInsert(obj, table);
+            Connection conn = new Database().getaccessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            int rs = preparedStatement.executeUpdate();
+
+            return rs;
+        });
+
+
         try {
-            connection = DBConnection.getConnection();
-            preparedStatement = connection.prepareStatement(sql.toString());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+            queryResult = (int) future.get();
+
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return false;
         }
-        return true;
+
+        if (queryResult > 0) {
+            System.out.println(queryResult);
+            return true;
+        }
+
+        System.out.println("Reached the bottom not sure why");
+        return false;
 
     }
 
+
+
     public static <T> boolean executeInsert(String tableName, Field... fields) {
-        buildInsert(tableName, fields);
-        System.out.println(sql);
-        Connection connection = null;
-//        try {
-//            connection = DBConnection.getConnection();
-//            preparedStatement = connection.prepareStatement(sql.toString());
-//            preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-        return true;
+
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildInsert(tableName, fields);
+            Connection conn = new Database().getaccessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            int rs = preparedStatement.executeUpdate();
+
+            return rs;
+        });
+
+
+        try {
+            queryResult = (int) future.get();
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (queryResult > 0) {
+            System.out.println(queryResult);
+            return true;
+        }
+
+        System.out.println("Reached the bottom not sure why");
+        return false;
 
     }
 

@@ -2,14 +2,22 @@ package DB.Queries;
 
 import Annotations.FieldName;
 import Annotations.PrimaryKey;
+
+import Models.Database;
 import Models.TableModel;
+import Threads.MakeThreadPool;
 
 import java.lang.reflect.Field;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class CreateTableQuery {
 
@@ -17,6 +25,7 @@ public class CreateTableQuery {
     static PreparedStatement preparedStatement;
 
     static Map<String, String> types = new HashMap<>();
+    private static int queryResult;
 
 
     public CreateTableQuery() {
@@ -37,24 +46,36 @@ public class CreateTableQuery {
     // Just a note the error is 42101 is the error code fro table already existing in H2
     // There are other methods to check if a table exits like metaData.getTables() or querying the information Schema
     public static boolean executeCreate(TableModel table) {
-        initlizeMap();
-        buildCreate(table);
-        System.out.println(sql);
-//        Connection connection = null;
-//        try {
-//            connection = DBConnection.getConnection();
-//            preparedStatement = connection.prepareStatement(sql.toString());
-//            preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            if(e.getErrorCode() == 42101){
-//                System.out.println("Table already exists ");
-//            }else {
-//                e.printStackTrace();
-//            }
-//            return false;
-//        }
-//        System.out.println(table.getTableName() + " Created Succesfully");
+
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            initlizeMap();
+            buildCreate(table);
+            Connection conn = new Database().getaccessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            int rs = preparedStatement.executeUpdate();
+
+            return rs;
+        });
+
+
+        try {
+            queryResult = (int) future.get();
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (queryResult > 0) {
+            System.out.println(queryResult);
+            return false;
+        }
+
+
         return true;
+
 
     }
 
@@ -103,28 +124,7 @@ public class CreateTableQuery {
 
         return "";
     }
-    // The field has a check
-//            if (!(field.getAnnotation(PrimaryKey.class).Check().equals(""))) {
-//                // the field has a default and a check
-//                if (!field.getAnnotation(PrimaryKey.class).defaultVal().equals("")) {
-//                    returnstr = new StringBuilder(field.getName() + " " + getSQLType(field.getType().getSimpleName()) + " Check ( "
-//                            + field.getAnnotation(PrimaryKey.class).Check() + ") Default " + "\'" + field.getAnnotation(PrimaryKey.class).defaultVal() + "\'");
-//                }
-//            }
-//            // The field only has a default
-//            else if (!(field.getAnnotation(PrimaryKey.class).defaultVal().equals(""))) {
-//                if (notStr) {
-//                    returnstr = new StringBuilder(field.getName() + " " + getSQLType(field.getType().getSimpleName()) + " Default \'"
-//                            + formatDefualt(field.getAnnotation(PrimaryKey.class).defaultVal() , getFieldtype(field).getSimpleName()) + "\' ");
-//                } else {
-//                    returnstr = new StringBuilder(field.getName() + " " + getSQLType(field.getType().getSimpleName()) + " Default \'"
-//                            + field.getAnnotation(PrimaryKey.class).defaultVal() + "\' ");
-//                }
-//            } else {
-//                returnstr = new StringBuilder(field.getName() + " " + getSQLType(field.getType().getSimpleName()) + " Check ("
-//                        + field.getAnnotation(PrimaryKey.class).Check() + ") ");
-//            }
-//        }
+
 
 
     public static Class getFieldtype(Field field) {

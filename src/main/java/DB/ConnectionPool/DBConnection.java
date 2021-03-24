@@ -1,4 +1,4 @@
-package DB;
+package DB.ConnectionPool;
 
 import java.io.Serializable;
 import java.sql.Connection;

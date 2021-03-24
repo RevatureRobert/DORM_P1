@@ -12,7 +12,7 @@ public interface DAOUtil {
 
     // Not sure what to return for the select type
     // should it be just the
-     <T> T findByID(int i );
+     <T> T findByID(T obj );
 
     <T> T showAll();
 

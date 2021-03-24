@@ -3,13 +3,13 @@ package DAO;
 import DB.Queries.*;
 import Models.TableModel;
 
-import javax.swing.table.DefaultTableModel;
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 
-public class BasicDao implements DAOUtil{
+public class BasicDao implements DAOUtil {
     @Override
     public boolean CreateTable(TableModel table) {
-       return CreateTableQuery.executeCreate(table);
+        return CreateTableQuery.executeCreate(table);
     }
 
     @Override
@@ -19,22 +19,38 @@ public class BasicDao implements DAOUtil{
 
     @Override
     public <T> boolean insertIntoTable(T obj) {
-        return InsertQuery.executeInsert((TableModel)obj);
+        return InsertQuery.executeInsert((TableModel) obj);
     }
 
-    public <T>  boolean insertIntoTable(T obj , TableModel table){
+    public <T> boolean insertIntoTable(T obj, TableModel table) {
 
-        return InsertQuery.executeInsert(obj , table);
+        return InsertQuery.executeInsert(obj, table);
     }
 
+    // I need more
+    // Maybe just search on PKS of the object
     @Override
-    public <T> T findByID(int i) {
-        return null;
+    public <T> T findByID(T obj) {
+
+         return null;
     }
 
     @Override
     public <T> T showAll() {
         return null;
+    }
+
+    public boolean readTable(TableModel table , Field...fields){
+        try {
+            return ReadQuery.executeRead(table , fields);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public <T> boolean showAll(TableModel obj) {
+        return new ReadQuery().executeRead(obj);
     }
 
     @Override
@@ -57,7 +73,7 @@ public class BasicDao implements DAOUtil{
 //        if( tableModel.getClass() != obj.getClass()){
 //            return -2;
 //        }
-        return DeleteQuery.executeDelete( obj , table);
+        return DeleteQuery.executeDelete(obj, table);
     }
 
     @Override
@@ -65,12 +81,12 @@ public class BasicDao implements DAOUtil{
         return 0;
     }
 
-    public boolean insertIntoTable(String tableName , Field... fields){
-        return InsertQuery.executeInsert(tableName ,fields);
+    public boolean insertIntoTable(String tableName, Field... fields) {
+        return InsertQuery.executeInsert(tableName, fields);
     }
 
-    public int updateTable(String tableName ,String colName, String colVal , Field... fields){
-        return UpdateQuery.executeUpdate(tableName ,colName ,colVal ,fields);
+    public int updateTable(String tableName, String colName, String colVal, Field... fields) {
+        return UpdateQuery.executeUpdate(tableName, colName, colVal, fields);
     }
 
 

@@ -1,7 +1,6 @@
 package DB.Queries.TCL;
 
-import DB.DBConnection;
-import Models.TableModel;
+import DB.ConnectionPool.DBConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -1,42 +1,47 @@
 package DB.Queries;
 
+import Models.Database;
 import Models.TableModel;
+import Threads.MakeThreadPool;
 
 import java.lang.reflect.Field;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class UpdateQuery {
 
     static StringBuilder sql = new StringBuilder();
     static PreparedStatement preparedStatement;
+    private static int queryResult;
 
 
-    public UpdateQuery () {
+    public UpdateQuery() {
 
     }
 
     // One issue i currently have is that i can only handle one Pk at a time and how do i decide if the user wants to an or an and
-    private static void buildUpdate(TableModel table){
+    private static void buildUpdate(TableModel table) {
         sql.append("Update " + table.getTableName() + " Set ");
         StringBuilder sqlFields = new StringBuilder();
         for (Field field : table.getAllFields()) {
-            if(field.getType().getSimpleName().equals("String")){
-                sqlFields.append(field.getName() + "=" + "\'"+table.getValue(field).toString()+"\'" + ",");
-            }
-            else{
+            if (field.getType().getSimpleName().equals("String")) {
+                sqlFields.append(field.getName() + "=" + "\'" + table.getValue(field).toString() + "\'" + ",");
+            } else {
                 sqlFields.append(field.getName() + "=" + table.getValue(field).toString() + ",");
             }
         }
 //        sql.append("( " + sqlFields.deleteCharAt(sqlFields.length() - 1) + " ) Values (");
-        sql.append(sqlFields.deleteCharAt(sqlFields.length()-1) + " Where ");
+        sql.append(sqlFields.deleteCharAt(sqlFields.length() - 1) + " Where ");
         sqlFields = new StringBuilder();
-        for(Field field: table.getPrimaryKeys()){
+        for (Field field : table.getPrimaryKeys()) {
 
-            if(field.getType().getSimpleName().equals("String")){
-                sqlFields.append(field.getName() + " = " + "\'table.getValue(field)\' ") ;
-            }
-            else{
-                sqlFields.append(field.getName() + " = " + table.getValue(field)) ;
+            if (field.getType().getSimpleName().equals("String")) {
+                sqlFields.append(field.getName() + " = " + "\'table.getValue(field)\' ");
+            } else {
+                sqlFields.append(field.getName() + " = " + table.getValue(field));
             }
         }
         sql.append(sqlFields);
@@ -44,18 +49,34 @@ public class UpdateQuery {
 
 
     public static int executeUpdate(TableModel table) {
-        buildUpdate(table);
-        System.out.println(sql);
-//        Connection connection = null;
-//        try {
-//            connection = DBConnection.getConnection();
-//            preparedStatement = connection.prepareStatement(sql.toString());
-//             return preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return -1;
-//        }
-        return 27;
+
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildUpdate(table);
+            Connection conn = new Database().getaccessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            int rs = preparedStatement.executeUpdate();
+
+            return rs;
+        });
+
+
+        try {
+            queryResult = (int) future.get();
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        if (queryResult > 0) {
+            System.out.println(queryResult);
+            return -1;
+        }
+
+
+        return queryResult;
 
     }
 
@@ -64,30 +85,30 @@ public class UpdateQuery {
     private static void buildUpdate(String tableName, Field[] fields, String colName, String colValue) {
         sql.append("Update " + tableName + " Set (");
         TableModel temp = new TableModel();
-        for(Field field : fields){
+        for (Field field : fields) {
             sql.append(field.getName() + "=" + temp.getValue(field) + " ,");
         }
-        sql.deleteCharAt(sql.length()-1);
+        sql.deleteCharAt(sql.length() - 1);
         sql.append(" ) Where " + colName + "=" + colValue);
     }
 
     private static void buildUpdate(String tableName, Field[] fields, Field whereCond) {
         sql.append("Update " + tableName + " Set (");
         TableModel temp = new TableModel();
-        for(Field field : fields){
+        for (Field field : fields) {
             sql.append(field.getName() + "=" + temp.getValue(field) + " ,");
         }
-        sql.deleteCharAt(sql.length()-1);
+        sql.deleteCharAt(sql.length() - 1);
         sql.append(" ) Where " + whereCond.getName() + "=" + temp.getValue(whereCond));
     }
 
     private static void buildUpdate(TableModel table, Field[] fields, Field whereCond) {
         sql.append("Update " + table.getTableName() + " Set (");
         TableModel temp = new TableModel();
-        for(Field field : fields){
+        for (Field field : fields) {
             sql.append(field.getName() + "=" + temp.getValue(field) + " ,");
         }
-        sql.deleteCharAt(sql.length()-1);
+        sql.deleteCharAt(sql.length() - 1);
         sql.append(" ) Where " + whereCond.getName() + "=" + temp.getValue(whereCond));
     }
 
@@ -96,51 +117,101 @@ public class UpdateQuery {
     // Second it use the field array to choose which values it wants to change
     // Then it will use the column name and value to give a where
     // Definitely more can implemented but i want to go to bed
-    public static int executeUpdate(String tableName , String colName ,String colValue ,Field... fields){
-        buildUpdate(tableName, fields , colName ,colValue);
-        System.out.println(sql);
-//        Connection connection = null;
-//        try {
-//            connection = DBConnection.getConnection();
-//            preparedStatement = connection.prepareStatement(sql.toString());
-//             return preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return -1;
-//        }
-        return 27;
+    public static int executeUpdate(String tableName, String colName, String colValue, Field... fields) {
+
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildUpdate(tableName, fields, colName, colValue);
+            Connection conn = new Database().getaccessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            int rs = preparedStatement.executeUpdate();
+
+            return rs;
+        });
+
+
+        try {
+            queryResult = (int) future.get();
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        if (queryResult > 0) {
+            System.out.println(queryResult);
+            return -1;
+        }
+
+
+        return queryResult;
     }
 
-    public static int executeUpdate(String tableName , Field whereCond ,Field... fields){
-        buildUpdate(tableName, fields , whereCond);
-        System.out.println(sql);
-//        Connection connection = null;
-//        try {
-//            connection = DBConnection.getConnection();
-//            preparedStatement = connection.prepareStatement(sql.toString());
-//             return preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return -1;
-//        }
-        return 27;
+
+    public static int executeUpdate(String tableName, Field whereCond, Field... fields) {
+
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildUpdate(tableName, fields, whereCond);
+            Connection conn = new Database().getaccessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            int rs = preparedStatement.executeUpdate();
+
+            return rs;
+        });
+
+
+        try {
+            queryResult = (int) future.get();
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        if (queryResult > 0) {
+            System.out.println(queryResult);
+            return -1;
+        }
+
+
+        return queryResult;
     }
 
-    public static int executeUpdate(TableModel table , Field whereCond ,Field... fields){
-        buildUpdate(table, fields , whereCond);
-        System.out.println(sql);
-//        Connection connection = null;
-//        try {
-//            connection = DBConnection.getConnection();
-//            preparedStatement = connection.prepareStatement(sql.toString());
-//             return preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return -1;
-//        }
-        return 27;
-    }
 
+    public static int executeUpdate(TableModel table, Field whereCond, Field... fields) {
+
+
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildUpdate(table, fields, whereCond);
+            Connection conn = new Database().getaccessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            int rs = preparedStatement.executeUpdate();
+
+            return rs;
+        });
+
+
+        try {
+            queryResult = (int) future.get();
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        if (queryResult > 0) {
+            System.out.println(queryResult);
+            return -1;
+        }
+
+
+        return queryResult;
+    }
 
 
 }
