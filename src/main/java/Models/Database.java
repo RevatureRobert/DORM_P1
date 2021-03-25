@@ -7,20 +7,24 @@ import RefelctionsWork.GetClasses;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 
 public class Database {
 
-    public LinkedList<TableModel> tables = new LinkedList<>();
+    public Set<TableModel> tables = new HashSet<>();
     private BasicDao dao = new BasicDao();
-    private ConnectionPool2 connectionPool = null;
-
+    private static ConnectionPool2 connectionPool = null;
 
 
     public Database() {
+        System.out.println(GetClasses.getEntities());
         for (Class clazz : GetClasses.getEntities()) {
-            tables.add(new TableModel(clazz));
+            TableModel tableModel = new TableModel(clazz);
+            tables.add(tableModel);
+
         }
         try {
             connectionPool = BasicConnPool
@@ -45,11 +49,11 @@ public class Database {
         getTable(tableName).printColumns();
     }
 
-    public Connection getaccessPool(){
+    public static Connection getaccessPool() {
         return connectionPool.getConnection();
     }
 
-    public  void realseConn(Connection conn){
+    public static void realseConn(Connection conn) {
         connectionPool.releaseConnection(conn);
     }
 
@@ -64,8 +68,12 @@ public class Database {
 
     }
 
+    public Set<TableModel> getTables() {
+        return tables;
+    }
+
     public TableModel getTable(String tableName) {
-        for (TableModel table : tables) {
+        for (TableModel table : getTables()) {
             if (table.getClazz().getSimpleName().equalsIgnoreCase(tableName)) {
                 return table;
             }
@@ -77,6 +85,44 @@ public class Database {
         return dao.CreateTable(table);
     }
 
+
+    // So my thinking is that they do not want to initialize every table
+    public boolean createTable(String... tableNames) {
+        int size = tableNames.length;
+        for (int i = 0; i < size; i++) {
+            dao.CreateTable(getTable(tableNames[i]));
+        }
+        return true;
+    }
+
+    // This method will create all the tables that were marked
+    public boolean createAllTables() {
+
+        int size = tables.size();
+        for (int i = 0; i < size; i++) {
+            dao.CreateTable(getTableModelFromTables(i));
+        }
+
+
+        return true;
+
+
+    }
+
+    private TableModel getTableModelFromTables(int x) {
+        int counter = 0;
+        for (TableModel table : tables) {
+            if (counter == x) {
+
+                return table;
+            } else {
+                counter++;
+            }
+        }
+        return null;
+    }
+
+
     public <T> boolean insertIntoTable(T obj, String tableName) {
         return dao.insertIntoTable(obj, getTable(tableName));
     }
@@ -86,32 +132,59 @@ public class Database {
     }
 
 
-    public <T> int deleteFromTable(T obj, String tableName) {
-        return dao.delete(obj, getTable(tableName));
+    public int deleteFromTable( String tableName) {
+        return dao.delete(getTable(tableName));
     }
 
 
-    public <T> int deleteFromTable(T obj, TableModel table) {
-        return dao.delete(obj, table);
+    public int deleteFromTable(TableModel table) {
+        return dao.delete( table);
     }
 
-    public <T> boolean insertIntoTable(String tableName, Field... fields) {
-        return dao.insertIntoTable(tableName, fields);
+    public <T> boolean insertIntoTable(String tableName, Field[] colNames, String[] colVals) {
+        return dao.insertIntoTable(tableName, colNames, colVals);
     }
 
-    public boolean showAll(TableModel tableModel){return dao.showAll(tableModel);}
+    public ResultSet showAll(TableModel tableModel) {
+        return dao.showAll(tableModel);
+    }
 
     public <T> int updateTable(String tableName, String colName, String colVal, Field... fields) {
         return dao.updateTable(tableName, colName, colVal, fields);
     }
 
-    public <T> boolean readAllTable(TableModel table) {
+    public <T> ResultSet readAllTable(TableModel table) {
         return dao.showAll(table);
     }
 
-    public <T> void readTable(TableModel table, Field... fields) {
+    public void readTable(TableModel table, Field... fields) {
         dao.readTable(table, fields);
     }
 
+    public void printReadTable(TableModel table ,Field...fields){
+         dao.printReadTable(table , fields);
+    }
+
+    public boolean dropTable(TableModel tableModel){
+        return dao.dropTable(tableModel);
+    }
+
+    public boolean deleteByID(String tableName ,Field[] fields , String[] values){
+        return dao.deleteById(tableName,fields,values);
+    }
+    /*
+        For the transaction i think all of the queries and method should be on the same thread an connection
+        So im thinking of setting up a different DAO for transaction this way i can keep all of them on the same thread
+        Make it be like transActionAdd() . . . Not sure yet though
+     */
+//    public boolean startTransaction(){
+//        return dao.
+//    }
+
+
+
+
 
 }
+
+

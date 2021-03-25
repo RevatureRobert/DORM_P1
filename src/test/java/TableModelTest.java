@@ -1,19 +1,21 @@
-package Models;
-
 import Annotations.FieldName;
 import Annotations.PrimaryKey;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class TableModel {
+public class TableModelTest {
+
+
 
     Class clazz;
     Field[] allFields;
     ArrayList<Field> columns = new ArrayList<>();
 
 
-    public TableModel(Class clazz) {
+    public TableModelTest(Class clazz) {
         this.clazz = clazz;
         this.allFields = clazz.getDeclaredFields();
         this.setColumns();
@@ -24,27 +26,34 @@ public class TableModel {
     // I don't think i can
     // Maybe if they input everything as strings
 
-    public TableModel(String tableName , Field... fields) {
+    public TableModelTest(String tableName , Field... fields) {
 
     }
 
     // Not sure what to do with this guy?
-    public TableModel() {
+    public TableModelTest() {
 
     }
 
+    @Test
     public Class getClazz() {
+
+        Assertions.assertEquals(true,true);
+
         return clazz;
     }
 
+    @Test
     public void setClazz(Class clazz) {
         this.clazz = clazz;
     }
 
+    @Test
     public Field[] getAllFields() {
         return allFields;
     }
 
+    @Test
     private void setColumns() {
         for (Field field : allFields) {
             if (field.isAnnotationPresent(PrimaryKey.class) || field.isAnnotationPresent(FieldName.class))
@@ -53,6 +62,7 @@ public class TableModel {
 
     }
 
+    @Test
     public List<Field> getColumns() {
         return this.columns;
     }
@@ -65,6 +75,8 @@ public class TableModel {
         return fields;
     }
 
+
+    @Test
     // only get an array of the all columns that the user wants
     public Field[] getColumnsArray(String... fieldName){
         Field[] fields = new Field[columns.size()];
@@ -77,6 +89,8 @@ public class TableModel {
         return fields;
     }
 
+
+    @Test
     // only get an array of the all columns that the user wants
     public Field[] getPrimaryKeysArray(String... fieldName){
         Field[] fields = new Field[columns.size()];
@@ -91,6 +105,8 @@ public class TableModel {
         return fields;
     }
 
+
+    @Test
     public Field[] getPrimaryKeysArray(){
         if(numberofPks() ==  0){
             System.out.println("There are no primary Keys");
@@ -99,7 +115,7 @@ public class TableModel {
         Field[] fields = new Field[numberofPks()];
         for(int i = 0 ; i < fields.length;i++){
             if(columns.get(i).isAnnotationPresent(PrimaryKey.class)){
-                    fields[i] = columns.get(i);
+                fields[i] = columns.get(i);
             }
 
         }
@@ -107,7 +123,9 @@ public class TableModel {
         return fields;
     }
 
-// Getting the number of primary keys
+
+    @Test
+    // Getting the number of primary keys
     private int numberofPks(){
         int counter =0;
         for(Field field:columns){
@@ -117,11 +135,14 @@ public class TableModel {
         return counter;
     }
 
+
+    @Test
     public void setAllFields(Field[] allFields) {
 
         this.allFields = allFields;
     }
 
+    @Test
     public List<Field> getPrimaryKeys() {
         List<Field> list = new LinkedList();
         for (Field field : this.allFields) {
@@ -132,6 +153,7 @@ public class TableModel {
         return list;
     }
 
+    @Test
     public List<Field> getFieldNames() {
         List<Field> list = new LinkedList();
         for (Field field : this.allFields) {
@@ -142,12 +164,15 @@ public class TableModel {
         return list;
     }
 
+    @Test
     public void printPrimaryKeys() {
         for (Field field : getPrimaryKeys()) {
             System.out.println(field.getName());
         }
     }
 
+
+    @Test
     public void printFieldNames() {
 
         for (Field field : getFieldNames()) {
@@ -155,6 +180,7 @@ public class TableModel {
         }
     }
 
+    @Test
     public void printColumns() {
         System.out.println("Primary Keys");
         System.out.println("------------");
@@ -166,11 +192,13 @@ public class TableModel {
         printFieldNames();
     }
 
+
+    @Test
     public String getTableName() {
         return this.clazz.getSimpleName();
     }
 
-
+    @Test
     public Class getFieldtype(Field field) {
         return field.getType();
     }
@@ -192,6 +220,7 @@ public class TableModel {
         I could look at the table name it self with getsimpleName and then check for a $ a
         If there is one i can act accordingly
      */
+    @Test
     public <T extends Object> T getValue(Field field) {
         try {
             field.setAccessible(true);
@@ -204,6 +233,7 @@ public class TableModel {
         return null;
     }
 
+    @Test
     public Field[] getFields(String... fieldNames) {
         Field[] fields = new Field[fieldNames.length];
         for (int i = 0; i < fieldNames.length; i++) {
@@ -214,14 +244,17 @@ public class TableModel {
         return fields;
     }
 
+
+    @Test
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TableModel)) return false;
-        TableModel that = (TableModel) o;
+        if (!(o instanceof Models.TableModel)) return false;
+        Models.TableModel that = (Models.TableModel) o;
         return Objects.equals(getClazz(), that.getClazz()) && Arrays.equals(getAllFields(), that.getAllFields());
     }
 
+    @Test
     private boolean isField(String field) {
         if (getFieldNames().contains(getField(field))) {
             return true;
@@ -230,6 +263,8 @@ public class TableModel {
         }
     }
 
+
+    @Test
     public Field getField(String fieldName) {
         System.out.println("Hitting");
         for (Field field : getAllFields()) {
@@ -241,6 +276,8 @@ public class TableModel {
         return null;
     }
 
+
+    @Test
     @Override
     public String toString() {
         return "TableModel{" +
@@ -250,6 +287,7 @@ public class TableModel {
                 '}';
     }
 
+    @Test
     public void printField(Field field) {
         System.out.println("Field name" + field.getName());
     }

@@ -7,6 +7,8 @@ import Threads.MakeThreadPool;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.text.Format;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -81,19 +83,38 @@ public class DeleteQuery {
 
     }
 
-    private static void buildDelete(String tableName, Field[] fields) {
+
+
+    private static void buildDelete(String tableName, Field[] fields ) {
+        sql.append("Delete from " +  tableName + " Where ");
+        System.out.println(fields.length);
+        for(Field field : fields){
+            System.out.println("Hitting");
+            sql.append(field.getName()).append(" = ").append("?").append(" AND");
+        }
+        sql.delete(sql.length()-3, sql.length());
+        sql.append(" ;");
     }
 
 
-    private static boolean executeDelete(String tableName, Field[] fields) {
+    // Not that is fundamentally what happens in SQL
+    public static boolean executeDelete(String tableName, Field[] fields, String[] values) {
 
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildDelete(tableName ,fields);
-            Connection conn = new Database().getaccessPool();
+            Connection conn = Database.getaccessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
+            for(int i=0;i < values.length;i++){
+                try {
+                    preparedStatement.setObject(i+1 ,values[i]);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
             int rs = preparedStatement.executeUpdate();
+            Database.realseConn(conn);
 
             return rs;
         });
@@ -108,8 +129,7 @@ public class DeleteQuery {
         }
 
         if (queryResult > 0) {
-            System.out.println(queryResult);
-            return false;
+            return true;
         }
 
 

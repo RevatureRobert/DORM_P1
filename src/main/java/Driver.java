@@ -1,21 +1,18 @@
 import DB.ConnectionPool.BasicConnPool;
 import DB.ConnectionPool.ConnectionPool2;
 import Models.Database;
+
 import Models.TableModel;
 import Threads.MakeThreadPool;
 
+import java.lang.reflect.Field;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static junit.framework.TestCase.assertTrue;
+import java.util.ArrayList;
 
 public class Driver {
 
-    private static Logger log = Logger.getLogger(String.valueOf(Driver.class));
-    public static void main(String[] args) {
 
-        Logger.getAnonymousLogger().setLevel(Level.OFF);
+    public static void main(String[] args) {
 
 
 
@@ -30,26 +27,18 @@ public class Driver {
 
 
         Database db = new Database();
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
-        db.showAll(db.getTable("car"));
+        //db.createAllTables();
+//        db.insertIntoTable("car" , db.getTable("car").getColumnsArray(), new String[]{"75", "Toyota", "2005"});
+        db.readTable(db.getTable("car"),db.getTable("car").getColumnsArray());
+        db.printReadTable(db.getTable("car"),db.getTable("car").getColumnsArray());
+//        db.dropTable(db.getTable("child"));
+
+
+
+//        System.out.println( db.deleteByID("Car",db.getTable("car").getPrimaryKeysArray() ,new String[]{"75"}));
+//
+//        db.createTable(db.getTable("Person"));
+//        db.createTable(db.getTable("Child"));
         MakeThreadPool.executorService.shutdown();
 
 

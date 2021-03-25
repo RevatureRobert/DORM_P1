@@ -1,34 +1,93 @@
 package DB.Queries;
 
+import Models.Database;
 import Models.TableModel;
+import Threads.MakeThreadPool;
 
 import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class DropQuery {
 
-    public boolean executeRead(TableModel table, Field... fields) {
-        buildDrop(table, fields);
+    static StringBuilder sql = new StringBuilder();
+    static PreparedStatement preparedStatement;
+    static Future query;
+    static int queryResult;
+
+    public boolean executeDrop(TableModel table) {
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildDrop(table);
+            Connection conn = Database.getaccessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            int rs = preparedStatement.executeUpdate();
+            Database.realseConn(conn);
+
+            return rs;
+        });
+
+        try {
+            queryResult = (int) future.get();
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (queryResult > 0) {
+            System.out.println(queryResult);
+            return true;
+        }
 
 
-//        try {
-//            connection = DBConnection.getConnection();
-////            ResultSet rset = connection.getMetaData().getTables(null, null, tableName, null);
-////            System.out.println(rset);
-//
-//            preparedStatement = connection.prepareStatement(sql.toString());
-//            preparedStatement.executeUpdate();
-//
-//
-//        } catch (SQLException e) {
-//
-//            e.printStackTrace();
-//
-//            return false;
-//        }
         return false;
+
     }
 
-    private void buildDrop(TableModel table, Field[] fields) {
+    public boolean executeDrop(String tableName) {
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildDrop(tableName);
+            Connection conn = Database.getaccessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            int rs = preparedStatement.executeUpdate();
+            Database.realseConn(conn);
 
+            return rs;
+        });
+
+        try {
+            queryResult = (int) future.get();
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (queryResult > 0) {
+            System.out.println(queryResult);
+            return true;
+        }
+
+        System.out.println("Reached the bottom not sure why");
+        return false;
+
+    }
+
+    private void buildDrop(TableModel table) {
+        sql.append("Drop table " + table.getTableName());
+
+
+    }
+
+    private void buildDrop(String tableName) {
+        sql.append("Drop table " + new Database().getTable(tableName));
     }
 }

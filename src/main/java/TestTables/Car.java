@@ -8,7 +8,7 @@ import Annotations.PrimaryKey;
 @Entity
 public class Car {
 
-    @PrimaryKey(defaultVal = "3",Check = "id>2")
+    @PrimaryKey(Check = "id>2")
     private int id = 35;
 
     @FieldName
@@ -19,8 +19,7 @@ public class Car {
 
     @IgnoreORM
     private String type ="Honda";
-    @FieldName
-    private Person person ;
+
 
 //    @Entity
 //    public class Wheels{

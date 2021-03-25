@@ -33,28 +33,27 @@ public class CreateTableQuery {
     }
 
     private static void buildCreate(TableModel table) {
-        sql.append("Create table " + table.getTableName());
+        sql.append("Create table IF NOT Exists " + table.getTableName());
         StringBuilder sqlFields = new StringBuilder();
         for (Field field : table.getColumns()) {
             sqlFields.append(getSQlCreateQuery(field) + ",");
         }
-        System.out.println(sqlFields);
-        sql.append("( " + sqlFields.deleteCharAt(sqlFields.length()-1) + " );");
+        sql.append(" ( " + sqlFields.deleteCharAt(sqlFields.length()-1) + " );");
     }
 
 
     // Just a note the error is 42101 is the error code fro table already existing in H2
     // There are other methods to check if a table exits like metaData.getTables() or querying the information Schema
     public static boolean executeCreate(TableModel table) {
-
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             initlizeMap();
             buildCreate(table);
-            Connection conn = new Database().getaccessPool();
+            Connection conn = Database.getaccessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
+            Database.realseConn(conn);
 
             return rs;
         });
@@ -64,13 +63,18 @@ public class CreateTableQuery {
             queryResult = (int) future.get();
 
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            System.out.println("Something went wrong in create");
+            System.out.println(e.getMessage());
             return false;
         }
 
-        if (queryResult > 0) {
-            System.out.println(queryResult);
+        if (queryResult == 0) {
+            System.out.println(table.getTableName() + " Table all ready created");
             return false;
+        }
+        else if(queryResult > 0){
+            System.out.println( table.getTableName() + " Table Created");
+            return true;
         }
 
 
@@ -82,7 +86,6 @@ public class CreateTableQuery {
     // if the field has a primary key it needs to be added
     // If it has other constraints add them so i gotta check what the field has and then return accordingly
     private static String getSQlCreateQuery(Field field) {
-        System.out.println(returnType(field));
         boolean notStr = true;
         if (field.getDeclaredAnnotations().length > 0) {
             StringBuilder returnStr = new StringBuilder(field.getName() + " " + getSQLType(field.getType().getSimpleName()));

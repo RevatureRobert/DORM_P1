@@ -30,9 +30,12 @@ public class CheckIfTableExists {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildQuery(tableName);
-            Connection conn = new Database().getaccessPool();
+            Connection conn = Database.getaccessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             ResultSet rs = preparedStatement.executeQuery();
+
+            Database.realseConn(conn);
+
 
             return rs;
         });

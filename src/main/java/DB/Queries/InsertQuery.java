@@ -1,6 +1,5 @@
 package DB.Queries;
 
-import DB.ConnectionPool.DBConnection;
 import Models.Database;
 import Models.TableModel;
 import Threads.MakeThreadPool;
@@ -8,7 +7,6 @@ import Threads.MakeThreadPool;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -83,13 +81,31 @@ public class InsertQuery {
         sql.append(" );");
     }
 
+    private static void buildInsert(String tableName, Field[] colName, String[] colVal) {
+        sql.append("Insert into " + tableName + " (");
+        TableModel temp = new TableModel();
+        for (Field field : colName) {
+            sql.append(field.getName() + ",");
+        }
+        //Get rid of the extra comma
+        sql.deleteCharAt(sql.length() - 1);
+        sql.append(") Values (");
+        for (String x : colVal) {
+            sql.append("? ,");
+        }
+        sql.deleteCharAt(sql.length() - 1);
+        sql.append(" );");
+        System.out.println(sql);
+    }
+
 
     public static boolean executeInsert(TableModel table) {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildInsert(table);
-            Connection conn = new Database().getaccessPool();
+            System.out.println(sql);
+            Connection conn = Database.getaccessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
 
@@ -121,7 +137,7 @@ public class InsertQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildInsert(obj, table);
-            Connection conn = new Database().getaccessPool();
+            Connection conn = Database.getaccessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
 
@@ -147,17 +163,41 @@ public class InsertQuery {
 
     }
 
+    private static void  buildInsert(String tableName, Field[] colName, int colVals){
+        sql.append("Insert into " + tableName + " (");
+        TableModel temp = new TableModel();
+        for (Field field : colName) {
+            sql.append(field.getName() + ",");
+        }
+        //Get rid of the extra comma
+        sql.deleteCharAt(sql.length() - 1);
+        sql.append(") Values (");
+        while ( colVals > 0) {
+            sql.append("? ,");
+            colVals--;
+        }
+        sql.deleteCharAt(sql.length() - 1);
+        sql.append(" );");
 
 
-    public static <T> boolean executeInsert(String tableName, Field... fields) {
+
+
+
+
+
+    }
+
+    public static <T> boolean executeInsert(String tableName, Field[] colName , String[] colVals) {
 
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
-            buildInsert(tableName, fields);
-            Connection conn = new Database().getaccessPool();
+            buildInsert(tableName, colName ,colVals.length );
+            Connection conn = Database.getaccessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
+            prepareTheStatement(preparedStatement ,colVals);
             int rs = preparedStatement.executeUpdate();
+            Database.realseConn(conn);
 
             return rs;
         });
@@ -167,6 +207,8 @@ public class InsertQuery {
             queryResult = (int) future.get();
 
         } catch (InterruptedException | ExecutionException e) {
+            System.out.println(e.getCause());
+            System.out.println("This caught it ");
             e.printStackTrace();
             return false;
         }
@@ -179,6 +221,24 @@ public class InsertQuery {
         System.out.println("Reached the bottom not sure why");
         return false;
 
+    }
+
+    private static void prepareTheStatement(PreparedStatement preparedStatement, String[] colVals) throws SQLException {
+        for (int i = 0 ; i < colVals.length;i++){
+            preparedStatement.setObject(i+1 ,colVals[i]);
+
+        }
+
+
+
+    }
+
+    private static boolean needQuotesForInsert(String fieldName){
+//        if(type.equalsIgnoreCase("int") || type.equalsIgnoreCase("double") ||
+//                type.equalsIgnoreCase("float") || type.equalsIgnoreCase("long")){
+//            return false;
+//        }
+        return true;
     }
 
 }

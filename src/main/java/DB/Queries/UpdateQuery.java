@@ -54,10 +54,11 @@ public class UpdateQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate(table);
-            Connection conn = new Database().getaccessPool();
+            Connection conn = Database.getaccessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
 
+            Database.realseConn(conn);
             return rs;
         });
 
@@ -123,9 +124,11 @@ public class UpdateQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate(tableName, fields, colName, colValue);
-            Connection conn = new Database().getaccessPool();
+            Connection conn = Database.getaccessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
+
+            Database.realseConn(conn);
 
             return rs;
         });
@@ -155,9 +158,11 @@ public class UpdateQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate(tableName, fields, whereCond);
-            Connection conn = new Database().getaccessPool();
+            Connection conn = Database.getaccessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
+
+            Database.realseConn(conn);
 
             return rs;
         });
@@ -188,9 +193,11 @@ public class UpdateQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate(table, fields, whereCond);
-            Connection conn = new Database().getaccessPool();
+            Connection conn = Database.getaccessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
+
+            Database.realseConn(conn);
 
             return rs;
         });

@@ -4,6 +4,7 @@ import DB.Queries.*;
 import Models.TableModel;
 
 import java.lang.reflect.Field;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class BasicDao implements DAOUtil {
@@ -49,7 +50,11 @@ public class BasicDao implements DAOUtil {
         }
     }
 
-    public <T> boolean showAll(TableModel obj) {
+    public void printReadTable(TableModel table , Field...fields){
+        ReadQuery.executeReadPrint(table , fields);
+    }
+
+    public <T> ResultSet showAll(TableModel obj) {
         return new ReadQuery().executeRead(obj);
     }
 
@@ -68,12 +73,12 @@ public class BasicDao implements DAOUtil {
     // might be for everyone but not sure
     // I dont know what im doing
     @Override
-    public <T> int delete(T obj, TableModel table) {
+    public int delete(TableModel table) {
 //        TableModel tableModel = new TableModel();
 //        if( tableModel.getClass() != obj.getClass()){
 //            return -2;
 //        }
-        return DeleteQuery.executeDelete(obj, table);
+        return DeleteQuery.executeDelete(table);
     }
 
     @Override
@@ -81,13 +86,27 @@ public class BasicDao implements DAOUtil {
         return 0;
     }
 
-    public boolean insertIntoTable(String tableName, Field... fields) {
-        return InsertQuery.executeInsert(tableName, fields);
+
+    public boolean deleteById(String tableName, Field[] fields, String[] values) {
+        return DeleteQuery.executeDelete( tableName,  fields,  values);
+    }
+
+//    public int deleteById(TableModel tablename , int id) {
+//        return DeleteQuery.executeDelete(tablename, id);
+//    }
+
+    public boolean insertIntoTable(String tableName, Field[] colName, String[] colVal) {
+        return InsertQuery.executeInsert(tableName, colName ,colVal);
     }
 
     public int updateTable(String tableName, String colName, String colVal, Field... fields) {
         return UpdateQuery.executeUpdate(tableName, colName, colVal, fields);
     }
+
+    public boolean dropTable(TableModel tableModel){
+        return new DropQuery().executeDrop(tableModel);
+    }
+
 
 
 }

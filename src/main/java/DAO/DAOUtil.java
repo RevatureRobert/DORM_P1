@@ -20,7 +20,7 @@ public interface DAOUtil {
 
     int updateRow(TableModel table);
 
-     <T> int delete(T obj, TableModel table);
+    int delete(TableModel table);
 
      int deleteById(int id);
 }

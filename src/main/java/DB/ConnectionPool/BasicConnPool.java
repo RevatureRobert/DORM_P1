@@ -1,10 +1,16 @@
 package DB.ConnectionPool;
 
+import Models.Database;
+import Threads.MakeThreadPool;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 // Using the Baeldung implementation
 // https://www.baeldung.com/java-connection-pooling
@@ -21,7 +27,7 @@ public class BasicConnPool implements ConnectionPool2 {
     private String password;
     private List<Connection> connectionPool;
     private List<Connection> usedConnections = new ArrayList<>();
-    private static int INITIAL_POOL_SIZE = 3;
+    private static int INITIAL_POOL_SIZE = 5;
 
     public BasicConnPool(String url, String user, String password, List<Connection> pool) {
         this.url = url;
@@ -98,10 +104,19 @@ public class BasicConnPool implements ConnectionPool2 {
         return this.password;
     }
 
-    private static Connection createConnection(
-            String url, String user, String password)
-            throws SQLException {
-        return DriverManager.getConnection(url, user, password);
+    private static Connection createConnection(String url, String user, String password) throws SQLException {
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            return DriverManager.getConnection(url, user, password);
+        });
+        try {
+            return (Connection) future.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        System.out.println("");
+        return null;
     }
 
     public int getSize() {

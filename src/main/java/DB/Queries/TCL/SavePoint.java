@@ -8,35 +8,30 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-public class Commit {
-    static StringBuilder sql = new StringBuilder();
-    static PreparedStatement preparedStatement;
+public class SavePoint {
+
+
+    private static StringBuilder sql;
+    private static PreparedStatement preparedStatement;
     private static int queryResult;
 
-    private static void buildCommit(){
-        sql.append("Commit");
-    };
+    public static int executeRollBack(String savePointName) {
 
-    public static int executeCommit() {
-        buildCommit();
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
-            sql.append("Commit");
             Connection conn = Database.getaccessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
-            ResultSet rs = preparedStatement.executeQuery();
+            int rs = preparedStatement.executeUpdate();
 
             Database.realseConn(conn);
 
             return rs;
         });
-
 
         try {
             queryResult = (int) future.get();
@@ -55,6 +50,5 @@ public class Commit {
         return -1;
 
     }
-
 
 }
