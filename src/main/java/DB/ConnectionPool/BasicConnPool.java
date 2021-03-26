@@ -106,6 +106,7 @@ public class BasicConnPool implements ConnectionPool2 {
 
     private static Connection createConnection(String url, String user, String password) throws SQLException {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            Class.forName("org.h2.Driver");
             return DriverManager.getConnection(url, user, password);
         });
         try {

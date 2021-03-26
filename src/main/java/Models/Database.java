@@ -4,17 +4,14 @@ import Annotations.Entity;
 import DAO.BasicDao;
 import DB.ConnectionPool.BasicConnPool;
 import DB.ConnectionPool.ConnectionPool2;
-import FileReader.ReadPropertyFile.ReadingPropertyFile;
 import RefelctionsWork.GetClasses;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
-import java.io.PrintStream;
 
 public class Database {
 
@@ -30,42 +27,8 @@ public class Database {
 
         }
         try {
-            ReadingPropertyFile reader = new ReadingPropertyFile();
             connectionPool = BasicConnPool
-                    .create(reader.getProp("DB.url"), reader.getProp("DB.username"), reader.getProp("DB.acess"));
-        } catch (
-                SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public Database(File configFile) {
-        for (Class clazz : GetClasses.getEntities()) {
-            TableModel tableModel = new TableModel(clazz);
-            tables.add(tableModel);
-
-        }
-        try {
-            ReadingPropertyFile reader = new ReadingPropertyFile(configFile);
-            connectionPool = BasicConnPool
-                    .create(reader.getProp("DB.url"), reader.getProp("DB.username"), reader.getProp("DB.acess"));
-        } catch (
-                SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public Database(String url , String user ,String pass) {
-        for (Class clazz : GetClasses.getEntities()) {
-            TableModel tableModel = new TableModel(clazz);
-            tables.add(tableModel);
-
-        }
-        try {
-
-            connectionPool = BasicConnPool
-                    .create(url, user, pass);
+                    .create("jdbc:h2:tcp://localhost/~/test", "sa", "");
         } catch (
                 SQLException e) {
             e.printStackTrace();
@@ -260,6 +223,7 @@ public class Database {
     public <T> boolean drop(T obj){
         return dao.drop(obj);
     }
+
 
     public <T> ResultSet read(T obj){return dao.read(obj);};
 

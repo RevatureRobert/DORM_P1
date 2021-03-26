@@ -34,9 +34,13 @@ public class Driver {
         Car c4 = new Car(123, "IDK ", "BFF JILL", 10);
 
 
+//        Database db = new Database("jdbc:h2:tcp://localhost/~/test" , "sa","");
         Database db = new Database();
-       // db.add(c4);
-        db.printResultSet(db.read(c4));
+
+        db.printResultSet(db.read(c2));
+
+        MakeThreadPool.executorService.shutdown();
+//        db.add(c1);
 //        db.add(c2);
 //        db.add(c3);
 //        db.delete(c2);
@@ -68,7 +72,7 @@ public class Driver {
 //
 //        db.createTable(db.getTable("Person"));
 //        db.createTable(db.getTable("Child"));
-        MakeThreadPool.executorService.shutdown();
+
 
 
 //        TableModel table = db.getTable("Person");
