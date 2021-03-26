@@ -30,6 +30,10 @@ public class Car {
     public Car() {
 
     }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
 }
 
 //    @Entity

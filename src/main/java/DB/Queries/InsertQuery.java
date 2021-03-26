@@ -279,8 +279,7 @@ public class InsertQuery {
             return true;
         } catch (InterruptedException | ExecutionException e) {
             System.out.println(e.getCause());
-            System.out.println("This caught it ");
-            e.printStackTrace();
+            System.out.println("Not successful");
             return false;
         }
     }

@@ -44,7 +44,7 @@ public class CreateTableQuery {
             if(!getSQlCreateQuery(fields).equals(""))
                 sqlFields.append(getSQlCreateQuery(fields) + ",");
         }
-        System.out.println(sqlFields);
+//        System.out.println(sqlFields);
         sqlStr.append("(" + sqlFields.deleteCharAt(sqlFields.length()-1) + ");" );
         return sqlStr;
     }

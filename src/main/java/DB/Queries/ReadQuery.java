@@ -213,7 +213,7 @@ public class ReadQuery {
 
     public static <T>  ResultSet readAll(T obj){
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
 
             Connection conn = Database.accessPool();
@@ -229,7 +229,7 @@ public class ReadQuery {
             queryResult = (ResultSet) future.get();
             return queryResult;
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            System.out.println("Something went wrong in the query");
             return null;
         }
 
