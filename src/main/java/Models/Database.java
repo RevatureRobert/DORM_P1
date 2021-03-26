@@ -263,7 +263,7 @@ public class Database {
 
 
     public <T> ResultSet read(T obj) {
-        return dao.read(obj);
+        return dao.readRow(obj);
     }
 
     ;

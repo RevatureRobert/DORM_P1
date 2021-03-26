@@ -56,7 +56,7 @@ public class Driver {
 ////        db.add(p3);
 ////        db.add(p4);
 //
-        db.printResultSet(db.readAll(new Person()));
+        db.printResultSet(db.read(p1));
 //
 //
 //        db.delete(p1);
