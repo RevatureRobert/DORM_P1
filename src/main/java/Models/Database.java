@@ -55,6 +55,22 @@ public class Database {
         }
     }
 
+    public Database(String user, String access ,String url , String driver ) {
+        for (Class clazz : GetClasses.getEntities()) {
+            TableModel tableModel = new TableModel(clazz);
+            tables.add(tableModel);
+
+        }
+        try {
+
+            connectionPool = BasicConnPool
+                    .create("postgres" ,"RevaturePro" ,"jdbc:postgresql://project1db.cbo6usfmqg0y.us-east-2.rds.amazonaws.com/postgres" ," org.postgresql.Driver");
+        } catch (
+                SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void printTablesNames() {
         for (TableModel table : tables) {
             System.out.println(table.getClazz().getSimpleName());
@@ -268,7 +284,6 @@ public class Database {
         System.out.println();
         try {
             System.out.println("Select from " + rs.getMetaData().getTableName(1));
-            System.out.println(rs.getMetaData().getColumnLabel(1));
             if (rs != null) {
                 for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                     System.out.print(rs.getMetaData().getColumnName(i) + "-------------");

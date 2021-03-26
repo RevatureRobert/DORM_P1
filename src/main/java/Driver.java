@@ -30,27 +30,37 @@ public class Driver {
         // Maybe each Db connection gets its own thread pool
 
 
-//        Car c1 = new Car(1000, "Testing", "Code", 10);
+        Car c1 = new Car(1000, "Testing", "Code", 10);
         Car c2 = new Car(50, "Does it matter", "Nope", 10);
-//        Car c3 = new Car(25, "Suck ", "I guess", 10);
-//        Car c4 = new Car(123, "IDK ", "BFF JILL", 10);
+        Car c3 = new Car(25, "Suck ", "I guess", 10);
+        Car c4 = new Car(123, "IDK ", "BFF JILL", 10);
 
 
-//        Database db = new Database("jdbc:h2:tcp://localhost/~/test" , "sa","");
         Database db = new Database();
         // db.add(new Person());
 
 
-        // System.out.println(db.update(new Person(420, LocalDate.now(), "Lebum" , "BiggieSmalls") ,new String[]{"id","fname"}, new String[]{"40","James"}));
-        Person p1 = new Person(420, LocalDate.now(), "MArio", "Lopez");
-        Person p2 = new Person(4, LocalDate.now(), "Charles", "Person");
+        Person p1 = new Person(10, LocalDate.now(), "Mario", "PLumber");
+        Person p2 = new Person(20, LocalDate.now(), "Charles", "Barkley");
 
-        Person p3 = new Person(5, LocalDate.now(), "Messi", "Shoot");
-        Person p4 = new Person(6, LocalDate.now(), "Ronny", "Score");
+        Person p3 = new Person(30, LocalDate.now(), "Messi", "Leo");
+        Person p4 = new Person(33, LocalDate.now(), "Ronaldo", "Cris");
         // Not sure what to do with the update i can update based on the PK
         //db.update(p4,new String[]{"id","fname"}, new String[] {"50","Lebron"});
-        //db.update(p1, p2);
-        db.update(p1);
+
+//        db.add(new Person());
+//        db.add(p1);
+//        db.add(p2);
+//        db.add(p3);
+//        db.add(p4);
+
+
+//        db.delete(p1);
+//        db.delete(p2);
+//        db.delete(p3);
+//        db.delete(p4);
+
+        db.printResultSet(db.readAll(new Person()));
 //
 //
 

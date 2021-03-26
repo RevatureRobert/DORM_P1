@@ -1,9 +1,7 @@
 package FileReader.ReadPropertyFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.util.Properties;
 
 public class ReadingPropertyFile {
@@ -12,10 +10,11 @@ public class ReadingPropertyFile {
 
 
 
+
     public ReadingPropertyFile(){
         {
             try {
-                ip = new FileInputStream("src/main/java/DB/db.properties");
+                ip = new FileInputStream("src/main/java/db.properties");
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
