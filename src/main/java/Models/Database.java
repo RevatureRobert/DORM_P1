@@ -4,8 +4,11 @@ import Annotations.Entity;
 import DAO.BasicDao;
 import DB.ConnectionPool.BasicConnPool;
 import DB.ConnectionPool.ConnectionPool2;
+import FileReader.ReadPropertyFile.ReadingPropertyFile;
 import RefelctionsWork.GetClasses;
+import Threads.MakeThreadPool;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -27,8 +30,24 @@ public class Database {
 
         }
         try {
+            ReadingPropertyFile reader = new ReadingPropertyFile();
             connectionPool = BasicConnPool
-                    .create("jdbc:h2:tcp://localhost/~/test", "sa", "");
+                    .create(reader.getProp("DB.url"), reader.getProp("DB.username"), reader.getProp("DB.access"));
+        } catch (
+                SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public Database(File file) {
+        for (Class clazz : GetClasses.getEntities()) {
+            TableModel tableModel = new TableModel(clazz);
+            tables.add(tableModel);
+
+        }
+        try {
+            ReadingPropertyFile reader = new ReadingPropertyFile(file);
+            connectionPool = BasicConnPool
+                    .create(reader.getProp("DB.url"), reader.getProp("DB.username"), reader.getProp("DB.access"));
         } catch (
                 SQLException e) {
             e.printStackTrace();
@@ -254,6 +273,17 @@ public class Database {
             e.printStackTrace();
         }
 
+    }
+
+
+    public void close(){
+        MakeThreadPool.executorService.shutdown();
+    }
+
+    @Override
+    public void finalize() {
+
+            MakeThreadPool.executorService.shutdown();
     }
 
     /*

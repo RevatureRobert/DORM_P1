@@ -10,9 +10,8 @@ import java.util.Set;
 
 public class GetClasses {
 
-    public static Set<Class<?>> getEntities(){
-        Reflections reflections = new Reflections("", new TypeAnnotationsScanner(),
-                new SubTypesScanner(), new FieldAnnotationsScanner());
+    public static Set<Class<?>> getEntities() {
+        Reflections reflections = new Reflections("", new SubTypesScanner(), new TypeAnnotationsScanner(), new FieldAnnotationsScanner());
 
         return reflections.getTypesAnnotatedWith(Entity.class);
     }

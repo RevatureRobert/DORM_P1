@@ -10,15 +10,16 @@ public class ReadingPropertyFile {
     Properties prop=new Properties();
     FileInputStream ip;
 
-    {
-        try {
-            ip = new FileInputStream("src/main/java/DB/db.properties");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
+
 
     public ReadingPropertyFile(){
+        {
+            try {
+                ip = new FileInputStream("src/main/java/DB/db.properties");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
         try {
             this.prop.load(ip);
         } catch (IOException e) {
@@ -30,7 +31,10 @@ public class ReadingPropertyFile {
     public ReadingPropertyFile(File file){
         try {
             ip = new FileInputStream(file.getAbsolutePath());
+            this.prop.load(ip);
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
