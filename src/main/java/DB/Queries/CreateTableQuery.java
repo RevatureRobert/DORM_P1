@@ -1,8 +1,10 @@
 package DB.Queries;
 
 import Annotations.FieldName;
+import Annotations.ForeignKey;
 import Annotations.PrimaryKey;
 
+import DB.Queries.ForeignKey.ForeignKeyCheck;
 import Models.Database;
 import Models.TableModel;
 import Threads.MakeThreadPool;
@@ -10,9 +12,9 @@ import Threads.MakeThreadPool;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -21,9 +23,10 @@ import java.util.concurrent.Future;
 
 public class CreateTableQuery {
 
+    static ArrayList<Boolean> isFKValid = new ArrayList<>();
     static StringBuilder sql = new StringBuilder();
     static PreparedStatement preparedStatement;
-
+    static boolean FkisValid = false;
     static Map<String, String> types = new HashMap<>();
     private static int queryResult;
 
@@ -32,13 +35,38 @@ public class CreateTableQuery {
 
     }
 
+    private static <T> StringBuilder buildCreate(T obj){
+        Class objClazz = obj.getClass();
+        StringBuilder sqlStr = new StringBuilder();
+        sqlStr.append("Create table IF NOT exists " + objClazz.getSimpleName());
+        StringBuilder sqlFields = new StringBuilder();
+        for(Field fields : objClazz.getDeclaredFields()){
+            if(!getSQlCreateQuery(fields).equals(""))
+                sqlFields.append(getSQlCreateQuery(fields) + ",");
+        }
+        System.out.println(sqlFields);
+        sqlStr.append("(" + sqlFields.deleteCharAt(sqlFields.length()-1) + ");" );
+        return sqlStr;
+    }
+
     private static void buildCreate(TableModel table) {
+
         sql.append("Create table IF NOT Exists " + table.getTableName());
         StringBuilder sqlFields = new StringBuilder();
         for (Field field : table.getColumns()) {
             sqlFields.append(getSQlCreateQuery(field) + ",");
         }
-        sql.append(" ( " + sqlFields.deleteCharAt(sqlFields.length()-1) + " );");
+//        System.out.println(sqlFields);
+        sql.append("(" + sqlFields.deleteCharAt(sqlFields.length()-1) + ");" );
+//        System.out.println("Before in the sql "+sql);
+       for(Field field : table.getAllForeignKeysArray()){
+//           System.out.println(field);
+           sql.append(new ForeignKeyCheck().buildFK(field));
+       }
+
+
+
+//        System.out.println( "In build "+ sql);
     }
 
 
@@ -50,10 +78,10 @@ public class CreateTableQuery {
             sql = new StringBuilder();
             initlizeMap();
             buildCreate(table);
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
-            Database.realseConn(conn);
+            Database.releaseConn(conn);
 
             return rs;
         });
@@ -61,25 +89,43 @@ public class CreateTableQuery {
 
         try {
             queryResult = (int) future.get();
+            return true;
 
         } catch (InterruptedException | ExecutionException e) {
             System.out.println("Something went wrong in create");
             System.out.println(e.getMessage());
+            e.printStackTrace();
             return false;
         }
 
-        if (queryResult == 0) {
-            System.out.println(table.getTableName() + " Table all ready created");
-            return false;
-        }
-        else if(queryResult > 0){
-            System.out.println( table.getTableName() + " Table Created");
+    }
+
+    public <T> boolean createTable(T obj){
+
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            //System.out.println(Thread.currentThread().getId());
+
+            initlizeMap();
+             sql = buildCreate(obj);
+            Connection conn = Database.accessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            int rs = preparedStatement.executeUpdate();
+            Database.releaseConn(conn);
+
+            return rs;
+        });
+
+        try {
+            queryResult = (int) future.get();
+            System.out.println("Success");
             return true;
+
+        } catch (InterruptedException | ExecutionException e) {
+            System.out.println("Something went wrong in create");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            return false;
         }
-
-
-        return true;
-
 
     }
 
@@ -104,12 +150,7 @@ public class CreateTableQuery {
                 }
                 //There is a check constraint on the field
                 // Only allow one constraint on one column or else it will break
-//            return field.getName() + " " + getSQLType(field.getType().getSimpleName());
-//            boolean unique() default false;
-//                boolean notNull() default false;
-//                boolean ForeignKey() default false;
-//                String defaultVal() default "";
-//                String Check() default "";
+
             return returnStr.toString();
             }
             // I'm not sure what to do with the quotes im just gonna pray it works im not sure
@@ -122,12 +163,25 @@ public class CreateTableQuery {
                     returnStr.append(" Default " + field.getAnnotation(PrimaryKey.class).defaultVal());
                 }
                 return returnStr.toString();
+            }else if(field.isAnnotationPresent(ForeignKey.class)){
+               return returnStr.toString();
             }
+
+
         }
 
         return "";
     }
 
+
+//    private static void checkForFks(TableModel tableModel){
+//        if(tableModel.getAllForeignKeysArray().length >0){
+//            for(Field field : tableModel.getAllForeignKeysArray()){
+//                isFKValid.add(new ForeignKeyCheck().isFKValid( field.getAnnotation(ForeignKey.class).tableReferencing(), field.getAnnotation(ForeignKey.class).ColumnReferencing()));
+//            }
+//
+//        }
+//    }
 
 
     public static Class getFieldtype(Field field) {

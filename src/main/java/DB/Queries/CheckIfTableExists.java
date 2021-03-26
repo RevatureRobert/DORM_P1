@@ -1,6 +1,5 @@
 package DB.Queries;
 
-import DB.ConnectionPool.DBConnection;
 import Models.Database;
 import Threads.MakeThreadPool;
 
@@ -30,11 +29,11 @@ public class CheckIfTableExists {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildQuery(tableName);
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             ResultSet rs = preparedStatement.executeQuery();
 
-            Database.realseConn(conn);
+            Database.releaseConn(conn);
 
 
             return rs;

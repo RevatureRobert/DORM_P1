@@ -4,10 +4,8 @@ import Models.Database;
 import Models.TableModel;
 import Threads.MakeThreadPool;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -24,10 +22,10 @@ public class DropQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildDrop(table);
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
-            Database.realseConn(conn);
+            Database.releaseConn(conn);
 
             return rs;
         });
@@ -50,34 +48,53 @@ public class DropQuery {
 
     }
 
-    public boolean executeDrop(String tableName) {
+    public <T> boolean executeDrop(T obj){
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
-            buildDrop(tableName);
-            Connection conn = Database.getaccessPool();
+            sql.append("Drop Table " + obj.getClass().getSimpleName());
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
-            Database.realseConn(conn);
+            Database.releaseConn(conn);
 
             return rs;
         });
 
         try {
             queryResult = (int) future.get();
+            return true;
 
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return false;
         }
 
-        if (queryResult > 0) {
-            System.out.println(queryResult);
+    }
+
+    public boolean executeDrop(String tableName) {
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildDrop(tableName);
+            Connection conn = Database.accessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            int rs = preparedStatement.executeUpdate();
+            Database.releaseConn(conn);
+
+            return rs;
+        });
+
+        try {
+            queryResult = (int) future.get();
             return true;
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return false;
         }
 
-        System.out.println("Reached the bottom not sure why");
-        return false;
+
 
     }
 

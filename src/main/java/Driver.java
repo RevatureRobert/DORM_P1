@@ -1,8 +1,13 @@
 import DB.ConnectionPool.BasicConnPool;
 import DB.ConnectionPool.ConnectionPool2;
+import DB.Queries.CreateTableQuery;
+import DB.Queries.UpdateQuery;
 import Models.Database;
 
 import Models.TableModel;
+import TestTables.Car;
+import TestTables.Child;
+import TestTables.Person;
 import Threads.MakeThreadPool;
 
 import java.lang.reflect.Field;
@@ -15,9 +20,6 @@ public class Driver {
     public static void main(String[] args) {
 
 
-
-
-
         // Need to implement a create a new Field option for alter ?
 
         // How to do the pooling
@@ -26,13 +28,38 @@ public class Driver {
         // Maybe each Db connection gets its own thread pool
 
 
+        Car c1 = new Car(1000, "Testing", "Code", 10);
+        Car c2 = new Car(50, "Does it matter", "Nope", 10);
+        Car c3 = new Car(25, "WEll", "I guess", 10);
+
+
         Database db = new Database();
-        //db.createAllTables();
+//        db.add(c1);
+//        db.add(c2);
+//        db.add(c3);
+//        db.delete(c2);
+       // db.delete(c2);
+//        db.create(new Child(250 ,"ITs a " , "Me Mario" , "year"));
+        db.drop(new Child());
+
+//        if(db.add(new Car(1000 ,"Testing" , "Code" ,10)))
+//            System.out.println("It was a success");
+//        else{
+//            System.out.println("It should not work");
+//        }
+        //System.out.println(db.update(new Car(5000 ,"Testing2.0" ,"FreeBird", 10),new String[]{"name"},new String[]{"Testing"}));
+//        System.out.println(new UpdateQuery().executeUpdate(new Car(5000 ,"Testing2.0" ,"FreeBird", 10),new String[]{"name"},new String[]{"Testing"}));
+
+//        Database db = new Database();
+//        //db.dropAllTables();
+//
+//        db.createTable(db.getTable("car"));
 //        db.insertIntoTable("car" , db.getTable("car").getColumnsArray(), new String[]{"75", "Toyota", "2005"});
-        db.readTable(db.getTable("car"),db.getTable("car").getColumnsArray());
-        db.printReadTable(db.getTable("car"),db.getTable("car").getColumnsArray());
+//        db.readTable(db.getTable("car"),db.getTable("car").getColumnsArray());
+//        db.printReadTable(db.getTable("car"),db.getTable("car").getColumnsArray());
 //        db.dropTable(db.getTable("child"));
 
+//        System.out.println(db.getTable("Car").getPrimaryKeysArray()[0].getDeclaringClass().getSimpleName() + "Excuse me");
 
 
 //        System.out.println( db.deleteByID("Car",db.getTable("car").getPrimaryKeysArray() ,new String[]{"75"}));
@@ -50,8 +77,6 @@ public class Driver {
 //        db.insertIntoTable(db.tables.getFirst().getTableName() , db.tables.get(1).getAllFields());
 ////        //db.updateTable("car", "year" , "1997" ,db.tables.get(0).getAllFields() );
 //        db.readTable(db.getTable("car"), db.getTable("car").getAllFields());
-
-
 
 
 //
@@ -96,7 +121,7 @@ public class Driver {
 //            for(int i =0;i < temp.length;i++){
 //                System.out.println(temp[i]);
 //            }
-        }
+}
 
 //        Set<Field> pks =
 //                reflections.getFieldsAnnotatedWith(PrimaryKey.class);
@@ -116,9 +141,6 @@ public class Driver {
 //                e.printStackTrace();
 //            }
 //        }
-
-
-
 
 
 //    public static <T extends Object> T getVariable(Field field) throws IllegalAccessException, InstantiationException {

@@ -1,5 +1,6 @@
 package Models;
 
+import Annotations.Entity;
 import DAO.BasicDao;
 import DB.ConnectionPool.BasicConnPool;
 import DB.ConnectionPool.ConnectionPool2;
@@ -20,7 +21,6 @@ public class Database {
 
 
     public Database() {
-        System.out.println(GetClasses.getEntities());
         for (Class clazz : GetClasses.getEntities()) {
             TableModel tableModel = new TableModel(clazz);
             tables.add(tableModel);
@@ -49,11 +49,11 @@ public class Database {
         getTable(tableName).printColumns();
     }
 
-    public static Connection getaccessPool() {
+    public static Connection accessPool() {
         return connectionPool.getConnection();
     }
 
-    public static void realseConn(Connection conn) {
+    public static void releaseConn(Connection conn) {
         connectionPool.releaseConnection(conn);
     }
 
@@ -132,16 +132,16 @@ public class Database {
     }
 
 
-    public int deleteFromTable( String tableName) {
+    public int deleteFromTable(String tableName) {
         return dao.delete(getTable(tableName));
     }
 
 
     public int deleteFromTable(TableModel table) {
-        return dao.delete( table);
+        return dao.delete(table);
     }
 
-    public <T> boolean insertIntoTable(String tableName, Field[] colNames, String[] colVals) {
+    public boolean insertIntoTable(String tableName, Field[] colNames, String[] colVals) {
         return dao.insertIntoTable(tableName, colNames, colVals);
     }
 
@@ -149,11 +149,11 @@ public class Database {
         return dao.showAll(tableModel);
     }
 
-    public <T> int updateTable(String tableName, String colName, String colVal, Field... fields) {
+    public int updateTable(String tableName, String colName, String colVal, Field... fields) {
         return dao.updateTable(tableName, colName, colVal, fields);
     }
 
-    public <T> ResultSet readAllTable(TableModel table) {
+    public ResultSet readAllTable(TableModel table) {
         return dao.showAll(table);
     }
 
@@ -161,17 +161,74 @@ public class Database {
         dao.readTable(table, fields);
     }
 
-    public void printReadTable(TableModel table ,Field...fields){
-         dao.printReadTable(table , fields);
+    public void printReadTable(TableModel table, Field... fields) {
+        dao.printReadTable(table, fields);
     }
 
-    public boolean dropTable(TableModel tableModel){
+    public boolean dropTable(TableModel tableModel) {
         return dao.dropTable(tableModel);
     }
 
-    public boolean deleteByID(String tableName ,Field[] fields , String[] values){
-        return dao.deleteById(tableName,fields,values);
+    public boolean dropAllTables() {
+        int size = tables.size();
+        for (int i = 0; i < size; i++) {
+            dao.dropTable(getTableModelFromTables(i));
+        }
+
+
+        return true;
     }
+
+    public boolean deleteByID(String tableName, Field[] fields, String[] values) {
+        return dao.deleteById(tableName, fields, values);
+    }
+
+    public <T> boolean add(T obj) {
+
+
+        return dao.insert(obj);
+
+
+    }
+
+    public <T> boolean create(T obj) {
+
+        if (obj.getClass().isAnnotationPresent(Entity.class)) {
+            return dao.create(new TableModel(obj.getClass()));
+        } else {
+            return dao.create(obj);
+        }
+
+
+    }
+
+    public <T> int update(T obj, String[] colNames, String[] colVals) {
+        return dao.update(obj, colNames, colVals);
+    }
+
+    public <T> int update(T obj) {
+        if (obj.getClass().isAnnotationPresent(Entity.class)) {
+            return dao.update(new TableModel(obj.getClass()));
+        } else {
+            System.out.println("Have not implemented this feature yet please use another method");
+            return -1;
+        }
+    }
+
+    public <T> int delete(T obj, String[] colNames, String[] colvals) {
+        return dao.delete(obj, colNames, colvals);
+    }
+
+    public <T> int delete(T obj) {
+
+        return dao.delete(obj);
+
+    }
+
+    public <T> boolean drop(T obj){
+        return dao.drop(obj);
+    }
+
     /*
         For the transaction i think all of the queries and method should be on the same thread an connection
         So im thinking of setting up a different DAO for transaction this way i can keep all of them on the same thread
@@ -180,9 +237,6 @@ public class Database {
 //    public boolean startTransaction(){
 //        return dao.
 //    }
-
-
-
 
 
 }

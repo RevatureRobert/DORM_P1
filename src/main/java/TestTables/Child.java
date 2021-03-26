@@ -21,5 +21,14 @@ public class Child {
     @IgnoreORM
     private String year ="1997";
 
+    public Child(int id, String fname, String lname, String year) {
+        this.id = id;
+        this.fname = fname;
+        this.lname = lname;
+        this.year = year;
+    }
 
+    public Child() {
+
+    }
 }

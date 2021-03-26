@@ -1,14 +1,10 @@
 package DB.Queries.TCL;
 
-import DB.ConnectionPool.DBConnection;
 import Models.Database;
-import Threads.MakeThreadPool;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 
 
 //Have them start a transaction do whatever they want and then just do whatever they want
@@ -22,7 +18,7 @@ public class Transaction {
     Connection connection;
 
     {
-        connection = new Database().getaccessPool();
+        connection = new Database().accessPool();
     }
 
 

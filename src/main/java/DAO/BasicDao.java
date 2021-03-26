@@ -78,7 +78,7 @@ public class BasicDao implements DAOUtil {
 //        if( tableModel.getClass() != obj.getClass()){
 //            return -2;
 //        }
-        return DeleteQuery.executeDelete(table);
+        return new DeleteQuery().delete(table);
     }
 
     @Override
@@ -107,6 +107,38 @@ public class BasicDao implements DAOUtil {
         return new DropQuery().executeDrop(tableModel);
     }
 
+    public <T> boolean insert(T obj){
+        return InsertQuery.insert(obj);
+    }
+
+    public <T> boolean create(T obj){
+        return new CreateTableQuery().createTable(obj);
+    }
+
+    // If the class has an annotation go through the table model creation process
+    public boolean create(TableModel t){
+        return CreateTableQuery.executeCreate(t);
+    }
+    public <T> int update(T obj , String[] colNames ,String...colVals){
+        return new UpdateQuery().executeUpdate(obj,colNames,colVals);
+    }
+    // Not sure if this works
+    //Lets say its still in beta
+    public int update(TableModel obj){
+        return UpdateQuery.executeUpdate(obj);
+    }
+
+    public <T> int delete(T obj, String[] colnNames, String[] colVal) {
+        return new DeleteQuery().delete(obj ,colnNames ,colVal);
+    }
+
+    public <T> int delete(T obj){
+        return new DeleteQuery().delete(obj);
+    }
+
+    public <T> boolean drop(T obj){
+        return new DropQuery().executeDrop(obj);
+    }
 
 
 }

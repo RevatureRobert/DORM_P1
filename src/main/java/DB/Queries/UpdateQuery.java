@@ -1,5 +1,7 @@
 package DB.Queries;
 
+import Annotations.IgnoreORM;
+import Annotations.PrimaryKey;
 import Models.Database;
 import Models.TableModel;
 import Threads.MakeThreadPool;
@@ -7,6 +9,8 @@ import Threads.MakeThreadPool;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -54,11 +58,11 @@ public class UpdateQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate(table);
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
 
-            Database.realseConn(conn);
+            Database.releaseConn(conn);
             return rs;
         });
 
@@ -124,11 +128,11 @@ public class UpdateQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate(tableName, fields, colName, colValue);
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
 
-            Database.realseConn(conn);
+            Database.releaseConn(conn);
 
             return rs;
         });
@@ -158,11 +162,11 @@ public class UpdateQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate(tableName, fields, whereCond);
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
 
-            Database.realseConn(conn);
+            Database.releaseConn(conn);
 
             return rs;
         });
@@ -193,11 +197,11 @@ public class UpdateQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate(table, fields, whereCond);
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
 
-            Database.realseConn(conn);
+            Database.releaseConn(conn);
 
             return rs;
         });
@@ -221,4 +225,165 @@ public class UpdateQuery {
     }
 
 
+    public <T> int executeUpdate(T obj, String[] colNames, String[] colVals) {
+
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            if (colNames.length != colVals.length)
+                return null;
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildUpdate(obj, colNames, colVals);
+            Connection conn = Database.accessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            int rs = preparedStatement.executeUpdate();
+
+            Database.releaseConn(conn);
+
+            return rs;
+        });
+
+
+        try {
+            queryResult = (int) future.get();
+            return queryResult;
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return -1;
+        } catch (NullPointerException e) {
+            System.out.println("Not the same number of column names and ");
+            System.out.println("column values ");
+            return -1;
+        } catch (ExecutionException e) {
+            System.out.println("There was a probelm in the query");
+            e.printStackTrace();
+            return -1;
+        }
+
+
+    }
+
+
+    public <T> void buildUpdate(T obj) {
+        sql.append("Update " + obj.getClass().getSimpleName() + " Set ");
+        StringBuilder sqlFields = new StringBuilder();
+        for (Field field : obj.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            try {
+                if (field.getType().getSimpleName().equals("String")) {
+                    sqlFields.append(field.getName() + "=" + "\'" + field.get(obj) + "\'" + ",");
+                } else {
+                    sqlFields.append(field.getName() + "=" + field.get(obj) + ",");
+                }
+
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+//        sql.append("( " + sqlFields.deleteCharAt(sqlFields.length() - 1) + " ) Values (");
+        sql.append(sqlFields.deleteCharAt(sqlFields.length() - 1) + " Where ");
+        sqlFields = new StringBuilder();
+        // doing this to isolate all the fields with the ids in the name
+        // Im not sure what the naming convention of their table since i was not able to read with reflections
+        // Im also not sure that they will have the annotations above their fields
+        LinkedList<Field> pks = new LinkedList<>();
+        for (Field pk : obj.getClass().getDeclaredFields()) {
+            if (pk.getName().contains("id") || pk.getName().contains("ID") || pk.getName().contains("Id") || pk.isAnnotationPresent(PrimaryKey.class)) {
+                pks.add(pk);
+            }
+        }
+
+        for (Field field : pks) {
+            try {
+                sqlFields.append(field.getName() + " = " + field.get(obj) + "AND");
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        sqlFields.delete(sqlFields.length()-3 ,sqlFields.length());
+        sql.append(sqlFields);
+
+    }
+
+    public <T> int executeUpdate(T obj) {
+
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildUpdate(obj);
+            Connection conn = Database.accessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+//            for(int i=0;i < buildUpdate(obj);i++){
+//                try {
+//                    preparedStatement.setObject(i+1 ,);
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+            int rs = preparedStatement.executeUpdate();
+
+            Database.releaseConn(conn);
+
+            return rs;
+        });
+
+
+        try {
+            queryResult = (int) future.get();
+            return queryResult;
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return -1;
+        } catch (NullPointerException e) {
+            System.out.println("Not the same number of column names and ");
+            System.out.println("column values ");
+            return -1;
+        } catch (ExecutionException e) {
+            System.out.println("There was a probelm in the query");
+            e.printStackTrace();
+            return -1;
+        }
+
+
+    }
+
+    public <T> void buildUpdate(T obj, String[] colName, String[] colVals) {
+        Class objClazz = obj.getClass();
+        sql.append("Update " + objClazz.getSimpleName() + " Set ");
+        StringBuilder sqlFields = new StringBuilder();
+        for (Field field : objClazz.getDeclaredFields()) {
+            if (field.isAnnotationPresent(IgnoreORM.class)) {
+                continue;
+            }
+            if (field.getType().getSimpleName().equals("String")) {
+                try {
+                    field.setAccessible(true);
+                    sqlFields.append(field.getName() + "=" + "\'" + field.get(obj) + "\'" + ",");
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    field.setAccessible(true);
+                    sqlFields.append(field.getName() + "=" + field.get(obj) + ",");
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+//        sql.append("( " + sqlFields.deleteCharAt(sqlFields.length() - 1) + " ) Values (");
+        sql.append(sqlFields.deleteCharAt(sqlFields.length() - 1) + " Where ");
+        sqlFields = new StringBuilder();
+        for (int i = 0; i < colName.length; i++) {
+            sqlFields.append(colName[i] + " = " + "\'" + colVals[i] + "\'" + "And");
+        }
+        sql.append(sqlFields.delete(sqlFields.length() - 3, sqlFields.length()));
+
+
+    }
 }
+
+
+

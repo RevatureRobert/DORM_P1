@@ -1,7 +1,5 @@
 package DB.Queries;
 
-import DB.ConnectionPool.BasicConnPool;
-import DB.ConnectionPool.ConnectionPool2;
 import Models.Database;
 import Models.TableModel;
 import Threads.MakeThreadPool;
@@ -61,7 +59,7 @@ public class ReadQuery {
             sql = new StringBuilder();
             buildSelect(tableName, fields);
             System.out.println(sql);
-            Connection conn = new Database().getaccessPool();
+            Connection conn = new Database().accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -96,10 +94,10 @@ public class ReadQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildSelect(table);
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             ResultSet rs = preparedStatement.executeQuery();
-            Database.realseConn(conn);
+            Database.releaseConn(conn);
 
             return rs;
         });
@@ -130,10 +128,10 @@ public class ReadQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildSelect(table, fields);
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             ResultSet rs = preparedStatement.executeQuery();
-            Database.realseConn(conn);
+            Database.releaseConn(conn);
 
 
             return rs;
@@ -166,7 +164,7 @@ public class ReadQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildSelect(table, fields);
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             try {
                 preparedStatement = conn.prepareStatement(sql.toString());
                 ResultSet rs = preparedStatement.executeQuery();
@@ -182,7 +180,7 @@ public class ReadQuery {
 
                 }
 
-                Database.realseConn(conn);
+                Database.releaseConn(conn);
             } catch (SQLException e) {
                 e.printStackTrace();
             }

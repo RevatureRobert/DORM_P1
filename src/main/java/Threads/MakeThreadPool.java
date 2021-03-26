@@ -8,14 +8,7 @@ import java.util.concurrent.Executors;
 public class MakeThreadPool {
 
 
-     public static ExecutorService executorService =  Executors.newFixedThreadPool(10);
-
-
-
-
-
-
-
+    public static ExecutorService executorService = Executors.newFixedThreadPool(10);
 
 
 }

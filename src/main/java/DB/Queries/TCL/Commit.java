@@ -1,14 +1,11 @@
 package DB.Queries.TCL;
 
-import DB.ConnectionPool.DBConnection;
 import Models.Database;
 import Threads.MakeThreadPool;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -28,11 +25,11 @@ public class Commit {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             sql.append("Commit");
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             ResultSet rs = preparedStatement.executeQuery();
 
-            Database.realseConn(conn);
+            Database.releaseConn(conn);
 
             return rs;
         });

@@ -1,6 +1,8 @@
 package Models;
 
 import Annotations.FieldName;
+import Annotations.ForeignKey;
+import Annotations.IgnoreORM;
 import Annotations.PrimaryKey;
 
 import java.lang.reflect.Field;
@@ -24,7 +26,7 @@ public class TableModel {
     // I don't think i can
     // Maybe if they input everything as strings
 
-    public TableModel(String tableName , Field... fields) {
+    public TableModel(String tableName, Field... fields) {
 
     }
 
@@ -47,7 +49,7 @@ public class TableModel {
 
     private void setColumns() {
         for (Field field : allFields) {
-            if (field.isAnnotationPresent(PrimaryKey.class) || field.isAnnotationPresent(FieldName.class))
+            if (field.isAnnotationPresent(PrimaryKey.class) || field.isAnnotationPresent(FieldName.class) || field.isAnnotationPresent(ForeignKey.class))
                 columns.add(field);
         }
 
@@ -56,20 +58,21 @@ public class TableModel {
     public List<Field> getColumns() {
         return this.columns;
     }
+
     // Get an Array of all of the fields
-    public Field[] getColumnsArray(){
+    public Field[] getColumnsArray() {
         Field[] fields = new Field[columns.size()];
-        for(int i = 0 ; i < fields.length;i++){
+        for (int i = 0; i < fields.length; i++) {
             fields[i] = columns.get(i);
         }
         return fields;
     }
 
     // only get an array of the all columns that the user wants
-    public Field[] getColumnsArray(String... fieldName){
+    public Field[] getColumnsArray(String... fieldName) {
         Field[] fields = new Field[columns.size()];
-        for(int i = 0 ; i < fields.length;i++){
-            if(columns.contains(fieldName[i])){
+        for (int i = 0; i < fields.length; i++) {
+            if (columns.contains(fieldName[i])) {
                 fields[i] = columns.get(columns.indexOf(fieldName[i]));
             }
 
@@ -77,13 +80,45 @@ public class TableModel {
         return fields;
     }
 
-    // only get an array of the all columns that the user wants
-    public Field[] getPrimaryKeysArray(String... fieldName){
-        Field[] fields = new Field[columns.size()];
-        for(int i = 0 ; i < fields.length;i++){
-            if(columns.contains(fieldName[i])){
+    public Field[] getForeignKeysArray(String... fieldName) {
+        Field[] fields = new Field[numberofFks()];
+        int counter = 0;
+        for (int i = 0; i < columns.size(); i++) {
+            if (columns.contains(fieldName[i])) {
                 Field temp = columns.get(columns.indexOf(fieldName[i]));
-                if(temp.isAnnotationPresent(PrimaryKey.class))
+                if (temp.isAnnotationPresent(PrimaryKey.class)) {
+                    fields[counter] = temp;
+                    counter++;
+                }
+
+            }
+
+        }
+        return fields;
+    }
+
+    public Field[] getAllForeignKeysArray() {
+        Field[] fields = new Field[numberofFks()];
+        int counter = 0;
+        for (int i = 0; i < columns.size(); i++) {
+            Field temp = columns.get(i);
+            if (temp.isAnnotationPresent(ForeignKey.class)) {
+                fields[counter] = temp;
+                counter++;
+            }
+        }
+
+
+        return fields;
+    }
+
+    // only get an array of the all columns that the user wants
+    public Field[] getPrimaryKeysArray(String... fieldName) {
+        Field[] fields = new Field[numberofPks()];
+        for (int i = 0; i < columns.size(); i++) {
+            if (columns.contains(fieldName[i])) {
+                Field temp = columns.get(columns.indexOf(fieldName[i]));
+                if (temp.isAnnotationPresent(PrimaryKey.class))
                     fields[i] = temp;
             }
 
@@ -91,15 +126,17 @@ public class TableModel {
         return fields;
     }
 
-    public Field[] getPrimaryKeysArray(){
-        if(numberofPks() ==  0){
+    public Field[] getPrimaryKeysArray() {
+        int counter = 0;
+        if (numberofPks() == 0) {
             System.out.println("There are no primary Keys");
             return null;
         }
         Field[] fields = new Field[numberofPks()];
-        for(int i = 0 ; i < fields.length;i++){
-            if(columns.get(i).isAnnotationPresent(PrimaryKey.class)){
-                    fields[i] = columns.get(i);
+        for (int i = 0; i < columns.size(); i++) {
+            if (columns.get(i).isAnnotationPresent(PrimaryKey.class)) {
+                fields[counter] = columns.get(i);
+                counter++;
             }
 
         }
@@ -107,11 +144,38 @@ public class TableModel {
         return fields;
     }
 
-// Getting the number of primary keys
-    private int numberofPks(){
-        int counter =0;
-        for(Field field:columns){
-            if(field.isAnnotationPresent(PrimaryKey.class))
+    // Getting the number of primary keys
+    private int numberofPks() {
+        int counter = 0;
+        for (Field field : columns) {
+            if (field.isAnnotationPresent(PrimaryKey.class))
+                counter++;
+        }
+        return counter;
+    }
+
+    private int numberofFields() {
+        int counter = 0;
+        for (Field field : columns) {
+            if (field.isAnnotationPresent(FieldName.class))
+                counter++;
+        }
+        return counter;
+    }
+
+    private int numberofFks() {
+        int counter = 0;
+        for (Field field : columns) {
+            if (field.isAnnotationPresent(ForeignKey.class))
+                counter++;
+        }
+        return counter;
+    }
+
+    private int numberofIgnored() {
+        int counter = 0;
+        for (Field field : columns) {
+            if (field.isAnnotationPresent(IgnoreORM.class))
                 counter++;
         }
         return counter;
@@ -192,7 +256,7 @@ public class TableModel {
         I could look at the table name it self with getsimpleName and then check for a $ a
         If there is one i can act accordingly
      */
-    public <T extends Object> T getValue(Field field) {
+    public <T> T getValue(Field field) {
         try {
             field.setAccessible(true);
             return (T) field.get(field.getDeclaringClass().newInstance());

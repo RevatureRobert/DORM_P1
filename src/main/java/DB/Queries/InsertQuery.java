@@ -1,5 +1,6 @@
 package DB.Queries;
 
+import Annotations.IgnoreORM;
 import Models.Database;
 import Models.TableModel;
 import Threads.MakeThreadPool;
@@ -26,23 +27,33 @@ public class InsertQuery {
     // Need to build an insert ot handle not just getting a whole table
     // Maybe the user wants to insert some null values like not every field
 
-    private static void buildInsert(TableModel table) {
-        sql.append("Insert into " + table.getTableName());
-        StringBuilder sqlFields = new StringBuilder();
-        for (Field field : table.getAllFields()) {
-            sqlFields.append(field.getName() + ",");
-        }
-        sql.append("( " + sqlFields.deleteCharAt(sqlFields.length() - 1) + " ) Values (");
-        sqlFields = new StringBuilder();
-        for (Field field : table.getAllFields()) {
-            if (field.getType().getSimpleName().equals("String")) {
-                sqlFields.append("\'" + table.getValue(field).toString() + "\'" + ",");
-            } else {
-                sqlFields.append(table.getValue(field).toString() + ",");
-            }
-        }
-        sql.append(sqlFields.deleteCharAt(sqlFields.length() - 1) + ");");
-    }
+//    private static void buildInsert(TableModel table) {
+//        sql.append("Insert into " + table.getTableName());
+//        StringBuilder sqlFields = new StringBuilder();
+//        for (Field field : table.getAllFields()) {
+//            sqlFields.append(field.getName() + ",");
+//        }
+//        sql.append("( " + sqlFields.deleteCharAt(sqlFields.length() - 1) + " ) Values (");
+//        sqlFields = new StringBuilder();
+//        for (Field field : table.getAllFields()) {
+//            if (field.getType().getSimpleName().equals("String")) {
+//                try {
+//                    field.setAccessible(true);
+//                    sqlFields.append("\'" + field.get(table.getClazz().newInstance()) + "\'" + ",");
+//                } catch (IllegalAccessException | InstantiationException e) {
+//                    e.printStackTrace();
+//                }
+//            } else {
+//                try {
+//                    field.setAccessible(true);
+//                    sqlFields.append(field.get(table.getClazz().newInstance()) + ",");
+//                } catch (IllegalAccessException | InstantiationException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//        sql.append(sqlFields.deleteCharAt(sqlFields.length() - 1) + ");");
+//    }
 
     // Not sure how to implement an insert that can take objects and insert them into a table
     // prob not going to implement
@@ -105,7 +116,7 @@ public class InsertQuery {
             sql = new StringBuilder();
             buildInsert(table);
             System.out.println(sql);
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
 
@@ -137,7 +148,7 @@ public class InsertQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildInsert(obj, table);
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
 
@@ -193,11 +204,11 @@ public class InsertQuery {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildInsert(tableName, colName ,colVals.length );
-            Connection conn = Database.getaccessPool();
+            Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             prepareTheStatement(preparedStatement ,colVals);
             int rs = preparedStatement.executeUpdate();
-            Database.realseConn(conn);
+            Database.releaseConn(conn);
 
             return rs;
         });
@@ -240,5 +251,112 @@ public class InsertQuery {
 //        }
         return true;
     }
+
+    public static <T> boolean insert(T obj){
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildInsert(obj);
+            Connection conn = Database.accessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            //prepareTheStatement(preparedStatement ,colVals);
+            int rs = preparedStatement.executeUpdate();
+            Database.releaseConn(conn);
+
+            return rs;
+        });
+        try {
+            queryResult = (int) future.get();
+            return true;
+        } catch (InterruptedException | ExecutionException e) {
+            System.out.println(e.getCause());
+            System.out.println("This caught it ");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean insert(TableModel obj){
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+            buildInsert(obj);
+            Connection conn = Database.accessPool();
+            preparedStatement = conn.prepareStatement(sql.toString());
+            //prepareTheStatement(preparedStatement ,colVals);
+            int rs = preparedStatement.executeUpdate();
+            Database.releaseConn(conn);
+
+            return rs;
+        });
+
+
+        try {
+            queryResult = (int) future.get();
+            return true;
+        } catch (InterruptedException | ExecutionException e) {
+            System.out.println(e.getCause());
+            System.out.println("This caught it ");
+            e.printStackTrace();
+            return false;
+        }
+
+
+    }
+
+
+
+    private static <T> void buildInsert(T obj){
+        Class objClazz = obj.getClass();
+        sql.append("Insert into " + objClazz.getSimpleName());
+        StringBuilder sqlFields = new StringBuilder();
+        for (Field field : objClazz.getDeclaredFields()) {
+            if(field.isAnnotationPresent(IgnoreORM.class)){
+                continue;
+            }else{
+                sqlFields.append(field.getName() + ",");
+            }
+
+        }
+        sql.append("( " + sqlFields.deleteCharAt(sqlFields.length() - 1) + " ) Values (");
+        sqlFields = new StringBuilder();
+        for (Field field : objClazz.getDeclaredFields()) {
+            if(field.isAnnotationPresent(IgnoreORM.class)){
+                continue;
+            }
+            if (field.getType().getSimpleName().equals("String")) {
+                try {
+                    field.setAccessible(true);
+                    sqlFields.append("\'" + field.get(obj) + "\'" + ",");
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    field.setAccessible(true);
+                    sqlFields.append(field.get(obj) + ",");
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        sql.append(sqlFields.deleteCharAt(sqlFields.length() - 1) + ");");
+
+
+
+    }
+
+    public static <T> T getValue(Field field) {
+        try {
+            field.setAccessible(true);
+            return (T) field.get(field.getDeclaringClass().newInstance());
+        } catch (IllegalAccessException e) {
+            System.out.println("Trying to access a field you have access for");;
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 }
