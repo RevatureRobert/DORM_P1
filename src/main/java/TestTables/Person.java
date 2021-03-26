@@ -18,4 +18,14 @@ public class Person {
     @FieldName(unique = false)
     private String lname = "BiggieSmalls";
 
+    public Person(int id, LocalDate dob, String fname, String lname) {
+        this.id = id;
+        Dob = dob;
+        this.fname = fname;
+        this.lname = lname;
+    }
+
+    public Person() {
+
+    }
 }

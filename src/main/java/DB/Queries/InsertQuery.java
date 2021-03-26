@@ -254,12 +254,21 @@ public class InsertQuery {
 
     public static <T> boolean insert(T obj){
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildInsert(obj);
             Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             //prepareTheStatement(preparedStatement ,colVals);
+            int counter = 1;
+            for(Field field : obj.getClass().getDeclaredFields()){
+                if(field.isAnnotationPresent(IgnoreORM.class)){
+                    continue;
+                }
+                field.setAccessible(true);
+                preparedStatement.setObject(counter , field.get(obj));
+                counter++;
+            }
             int rs = preparedStatement.executeUpdate();
             Database.releaseConn(conn);
 
@@ -270,10 +279,47 @@ public class InsertQuery {
             return true;
         } catch (InterruptedException | ExecutionException e) {
             System.out.println(e.getCause());
-            System.out.println("This caught it ");
-            e.printStackTrace();
+            System.out.println("Not successful");
             return false;
         }
+    }
+
+    // So for this insert i will take in the first object as the where and then use the second object as the set
+    public static <T> boolean insert(T... obj ){
+        for(T objectThing : obj){
+            Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+                System.out.println(Thread.currentThread().getId());
+                sql = new StringBuilder();
+                buildInsert(objectThing);
+                System.out.println(sql);
+                Connection conn = Database.accessPool();
+                preparedStatement = conn.prepareStatement(sql.toString());
+                //prepareTheStatement(preparedStatement ,colVals);
+                int counter = 1;
+                for(Field field : objectThing.getClass().getDeclaredFields()){
+                    if(field.isAnnotationPresent(IgnoreORM.class)){
+                        continue;
+                    }
+                    field.setAccessible(true);
+                    preparedStatement.setObject(counter , field.get(objectThing));
+                    counter++;
+                }
+                int rs = preparedStatement.executeUpdate();
+                Database.releaseConn(conn);
+
+                return rs;
+            });
+            try {
+                queryResult = (int) future.get();
+                return true;
+            } catch (InterruptedException | ExecutionException e) {
+                System.out.println(e.getCause());
+                System.out.println("This caught it ");
+                e.printStackTrace();
+                return false;
+            }
+        }
+       return true;
     }
 
     public static boolean insert(TableModel obj){
@@ -324,21 +370,22 @@ public class InsertQuery {
             if(field.isAnnotationPresent(IgnoreORM.class)){
                 continue;
             }
-            if (field.getType().getSimpleName().equals("String")) {
-                try {
-                    field.setAccessible(true);
-                    sqlFields.append("\'" + field.get(obj) + "\'" + ",");
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                try {
-                    field.setAccessible(true);
-                    sqlFields.append(field.get(obj) + ",");
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
+            sqlFields.append(" ?  ,");
+//            if (field.getType().getSimpleName().equals("String")) {
+//                try {
+//                    field.setAccessible(true);
+//                    sqlFields.append("\'" + field.get(obj) + "\'" + ",");
+//                } catch (IllegalAccessException e) {
+//                    e.printStackTrace();
+//                }
+//            } else {
+//                try {
+//                    field.setAccessible(true);
+//                    sqlFields.append(field.get(obj) + ",");
+//                } catch (IllegalAccessException e) {
+//                    e.printStackTrace();
+//                }
+//            }
         }
         sql.append(sqlFields.deleteCharAt(sqlFields.length() - 1) + ");");
 

@@ -12,6 +12,8 @@ import Threads.MakeThreadPool;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 
 public class Driver {
@@ -19,145 +21,76 @@ public class Driver {
 
     public static void main(String[] args) {
 
-
-        // Need to implement a create a new Field option for alter ?
-
-        // How to do the pooling
-        // Need a pool of DB connections
-        // Need a pool of threads
-        // Maybe each Db connection gets its own thread pool
-
-
-        Car c1 = new Car(1000, "Testing", "Code", 10);
-        Car c2 = new Car(50, "Does it matter", "Nope", 10);
-        Car c3 = new Car(25, "Suck ", "I guess", 10);
+        Car c1 = new Car(1000, "Car1", "2002", 10);
+        Car c2 = new Car(50, "Car2", "2005", 10);
+        Car c3 = new Car(25, "Suck ", "2006", 10);
         Car c4 = new Car(123, "IDK ", "BFF JILL", 10);
 
 
-//        Database db = new Database("jdbc:h2:tcp://localhost/~/test" , "sa","");
         Database db = new Database();
+        // db.add(new Person());
+        db.drop(new Car());
+        db.create(new Car());
 
-        db.printResultSet(db.read(c2));
-
-        MakeThreadPool.executorService.shutdown();
+//
+        Person p1 = new Person(10, LocalDate.now(), "Mario", "PLumber");
+//        Person p2 = new Person(20, LocalDate.now(), "Charles", "Barkley");
+//
+//        Person p3 = new Person(30, LocalDate.now(), "Messi", "Leo");
+//        Person p4 = new Person(33, LocalDate.now(), "Ronaldo", "Cris");
+//        // Not sure what to do with the update i can update based on the PK
+//        //db.update(p4,new String[]{"id","fname"}, new String[] {"50","Lebron"});
+//
+//        db.printResultSet(db.readAll(new Person()));
 //        db.add(c1);
-//        db.add(c2);
+        db.add(c2);
 //        db.add(c3);
-//        db.delete(c2);
-       // db.delete(c2);
-//        db.create(new Child(250 ,"ITs a " , "Me Mario" , "year"));
-        //db.drop(new Child());
-
-//        if(db.add(new Car(1000 ,"Testing" , "Code" ,10)))
-//            System.out.println("It was a success");
-//        else{
-//            System.out.println("It should not work");
-//        }
-        //System.out.println(db.update(new Car(5000 ,"Testing2.0" ,"FreeBird", 10),new String[]{"name"},new String[]{"Testing"}));
-//        System.out.println(new UpdateQuery().executeUpdate(new Car(5000 ,"Testing2.0" ,"FreeBird", 10),new String[]{"name"},new String[]{"Testing"}));
-
-//        Database db = new Database();
-//        //db.dropAllTables();
+////        db.add(c4);
 //
-//        db.createTable(db.getTable("car"));
-//        db.insertIntoTable("car" , db.getTable("car").getColumnsArray(), new String[]{"75", "Toyota", "2005"});
-//        db.readTable(db.getTable("car"),db.getTable("car").getColumnsArray());
-//        db.printReadTable(db.getTable("car"),db.getTable("car").getColumnsArray());
-//        db.dropTable(db.getTable("child"));
-
-//        System.out.println(db.getTable("Car").getPrimaryKeysArray()[0].getDeclaringClass().getSimpleName() + "Excuse me");
-
-
-//        System.out.println( db.deleteByID("Car",db.getTable("car").getPrimaryKeysArray() ,new String[]{"75"}));
+//        db.printResultSet(db.read(new Car()));
 //
-//        db.createTable(db.getTable("Person"));
-//        db.createTable(db.getTable("Child"));
-
-
-
-//        TableModel table = db.getTable("Person");
-//        System.out.println(table.getTableName());
-//        System.out.println(table.getFields("fname","lname")[0].getName());
-
-//        db.createTable(db.tables.get(0));
-//        db.insertIntoTable(db.tables.getFirst().getTableName() , db.tables.get(1).getAllFields());
-////        //db.updateTable("car", "year" , "1997" ,db.tables.get(0).getAllFields() );
-//        db.readTable(db.getTable("car"), db.getTable("car").getAllFields());
-
-
 //
-//       BasicDao playToy = new BasicDao();
-////       playToy.CreateTable(tables.getFirst());
-//     //  playToy.insertIntoTable(tables.getFirst());
-////       new BasicDao().insertIntoTable(tables.getFirst());
-//        System.out.println( playToy.delete(tables.getFirst()));
+////        db.add(new Person());
+//            db.add(p1);
+////        db.add(p2);
+////        db.add(p3);
+////        db.add(p4);
+//
+        db.printResultSet(db.read(p1));
+//
+//
+//        db.delete(p1);
+////        db.delete(p2);
+////        db.delete(p3);
+////        db.delete(p4);
+//
+        db.printResultSet(db.readAll(new Person()));
+//
+//        db.update(c2,c4);
+//
+//        c4.setYear("1950");
+//
+//        db.update(c4);
+//
+//        db.printResultSet(db.readAll(new Car()));
+//
+//        db.update(c4, new String[]{"id","year"}, new String[] {"5000", "2000"});
 
-//       for(int i = 0; i < tables.size();i++){
-//           System.out.println(tables.get(i).getTableName());
-//       }
+
+        db.printResultSet(db.readAll(new Car()));
+//
+//
+        //db.drop(new Car());
+
+        db.printResultSet(db.readAll(new Car()));
+
+
+        db.close();
+
+
     }
-
-
-//        for (Class table : tables) {
-//            System.out.println(table.getSimpleName());
-//            Field[] temp = table.getDeclaredFields();
-//            for (Field field : temp) {
-//                if (field.isAnnotationPresent(FieldName.class)) {
-//                    field.setAccessible(true);
-//                    try {
-//                        System.out.println(getVariable(field).toString());
-//                    } catch (IllegalAccessException e) {
-//                        e.printStackTrace();
-//                    } catch (InstantiationException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//                else if (field.isAnnotationPresent(PrimaryKey.class)){
-//                    System.out.println("This is a primary key");
-//                    System.out.println(field.getName());
-//                }
-//                else {
-//                    System.out.println("What is this ?");
-//                    System.out.println(field.getName());
-//                }
-//                System.out.println();
-//            }
-
-//            Constructor[] temp = table.getConstructors();
-//            for(int i =0;i < temp.length;i++){
-//                System.out.println(temp[i]);
-//            }
 }
 
-//        Set<Field> pks =
-//                reflections.getFieldsAnnotatedWith(PrimaryKey.class);
-//
-//        Set<Field> fields =
-//                reflections.getFieldsAnnotatedWith(FieldName.class);
-
-//        for (Field field : fields) {
-//            field.setAccessible(true);
-//            try {
-//                System.out.println(field.getName());
-//                System.out.println((String) getVariable(field));
-//
-//            } catch (IllegalAccessException e) {
-//                e.printStackTrace();
-//            } catch (InstantiationException e) {
-//                e.printStackTrace();
-//            }
-//        }
-
-
-//    public static <T extends Object> T getVariable(Field field) throws IllegalAccessException, InstantiationException {
-////         String className = field.getDeclaringClass().getSimpleName();
-////         Class<?>[] temp  = field.getDeclaringClass().getDeclaredClasses();
-////        for(int i = 0 ;i < temp.length;i++){
-////            System.out.println("In the loop");
-////            System.out.println(temp[i]);
-////        }
-//        return (T) field.get(field.getDeclaringClass().newInstance());
-//    }
 
 
 

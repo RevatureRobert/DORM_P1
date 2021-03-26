@@ -50,7 +50,7 @@ public class DropQuery {
 
     public <T> boolean executeDrop(T obj){
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+           // System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             sql.append("Drop Table " + obj.getClass().getSimpleName());
             Connection conn = Database.accessPool();

@@ -1,12 +1,14 @@
 package DB.Queries;
 
 import Annotations.IgnoreORM;
+import Annotations.PrimaryKey;
 import Models.Database;
 import Models.TableModel;
 import Threads.MakeThreadPool;
 
 import java.lang.reflect.Field;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -23,9 +25,9 @@ public class ReadQuery {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
-
+            Field[] fields = buildSelectRow(obj);
             Connection conn = Database.accessPool();
-            preparedStatement = conn.prepareStatement(buildSelectRow(obj));
+            preparedStatement = conn.prepareStatement(sql.toString());
             ResultSet rs = preparedStatement.executeQuery();
             Database.releaseConn(conn);
 
@@ -42,8 +44,39 @@ public class ReadQuery {
         }
     }
 
-    private static <T> String buildSelectRow(T obj) {
-        return new String("Select * from "  +obj.getClass().getSimpleName());
+    private static <T> Field[] buildSelectRow(T obj) {
+        StringBuilder sqlFields = new StringBuilder();
+         sqlFields.append(("Select * from "  + obj.getClass().getSimpleName()) + " Where ");
+
+        // doing this to isolate all the fields with the ids in the name
+        // Im not sure what the naming convention of their table since i was not able to read with reflections
+        // Im also not sure that they will have the annotations above their fields
+        ArrayList<Field> pks = new ArrayList<>();
+        for (Field pk : obj.getClass().getDeclaredFields()) {
+            if (pk.getName().contains("id") || pk.getName().contains("ID") || pk.getName().contains("Id") || pk.isAnnotationPresent(PrimaryKey.class)) {
+                pks.add(pk);
+            }
+        }
+        System.out.println(pks.size());
+        for (Field field : pks) {
+            try {
+                field.setAccessible(true);
+                sqlFields.append(field.getName() + " = " + field.get(obj) + " AND ");
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        // If there are no primary keys
+        // but i think this will break everything
+        if(pks.size() > 0){
+            sqlFields.delete(sqlFields.length() - 4, sqlFields.length());
+        }
+
+        sql.append(sqlFields);
+        System.out.println(sql);
+        return pks.toArray(new Field[0]);
+
+
     }
 
     // Not sure i need to specify the table name
@@ -213,7 +246,7 @@ public class ReadQuery {
 
     public static <T>  ResultSet readAll(T obj){
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
 
             Connection conn = Database.accessPool();
@@ -229,7 +262,7 @@ public class ReadQuery {
             queryResult = (ResultSet) future.get();
             return queryResult;
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            System.out.println("Something went wrong in the query");
             return null;
         }
 

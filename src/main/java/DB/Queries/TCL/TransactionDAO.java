@@ -21,7 +21,7 @@ public class TransactionDAO {
     static Connection connection;
 
     {
-        connection = new Database().accessPool();
+        connection = Database.accessPool();
     }
 
 
@@ -43,6 +43,7 @@ public class TransactionDAO {
         Commit.executeCommit(connection);
         try {
             connection.setAutoCommit(true);
+            Database.releaseConn(connection);
         } catch (SQLException e) {
             e.printStackTrace();
         }
