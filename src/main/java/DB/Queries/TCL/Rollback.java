@@ -5,6 +5,7 @@ import Threads.MakeThreadPool;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -14,72 +15,39 @@ public class Rollback {
     static PreparedStatement preparedStatement;
     private static int queryResult;
 
-    private static void buildRollBack(){
+    private static void buildRollBack() {
         sql.append("Rollback");
-    };
-    private static  void buildRollBack(String savepointName){
+    }
+
+    ;
+
+    private static void buildRollBack(String savepointName) {
         sql.append("Rollback to " + savepointName);
     }
 
-    public static int executeRollBack() {
-        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
-            sql = new StringBuilder("Rollback ;");
-            Connection conn = Database.accessPool();
-            preparedStatement = conn.prepareStatement(sql.toString());
-            int rs = preparedStatement.executeUpdate();
-
-            Database.releaseConn(conn);
-
-            return rs;
-        });
-
+    public static int executeRollBack(Connection conn) {
+        sql = new StringBuilder("Rollback");
         try {
-            queryResult = (int) future.get();
-
-        } catch (InterruptedException | ExecutionException e) {
+            preparedStatement = conn.prepareStatement(sql.toString());
+            return preparedStatement.executeUpdate();
+        } catch (SQLException e) {
             e.printStackTrace();
             return -1;
         }
 
-        if (queryResult > 0) {
-            System.out.println(queryResult);
-            return queryResult;
-        }
-
-        return -1;
-
 
     }
 
-    public static int executeRollBack(String savePointName) {
-        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
-            buildRollBack(savePointName);
-            Connection conn = Database.accessPool();
-            preparedStatement = conn.prepareStatement(sql.toString());
-            int rs = preparedStatement.executeUpdate();
-
-            Database.releaseConn(conn);
-
-            return rs;
-        });
-
+    public static int executeRollBack(String savePointName, Connection conn) {
+        sql = new StringBuilder("Rollback " + savePointName);
         try {
-            queryResult = (int) future.get();
-
-        } catch (InterruptedException | ExecutionException e) {
+            preparedStatement = conn.prepareStatement(sql.toString());
+            return preparedStatement.executeUpdate();
+        } catch (SQLException e) {
             e.printStackTrace();
             return -1;
         }
 
-        if (queryResult > 0) {
-            System.out.println(queryResult);
-            return queryResult;
-        }
 
-        return -1;
     }
-
-
 }

@@ -30,17 +30,19 @@ public class Driver {
 
         Car c1 = new Car(1000, "Testing", "Code", 10);
         Car c2 = new Car(50, "Does it matter", "Nope", 10);
-        Car c3 = new Car(25, "WEll", "I guess", 10);
+        Car c3 = new Car(25, "Suck ", "I guess", 10);
+        Car c4 = new Car(123, "IDK ", "BFF JILL", 10);
 
 
         Database db = new Database();
-//        db.add(c1);
+       // db.add(c4);
+        db.printResultSet(db.read(c4));
 //        db.add(c2);
 //        db.add(c3);
 //        db.delete(c2);
        // db.delete(c2);
 //        db.create(new Child(250 ,"ITs a " , "Me Mario" , "year"));
-        db.drop(new Child());
+        //db.drop(new Child());
 
 //        if(db.add(new Car(1000 ,"Testing" , "Code" ,10)))
 //            System.out.println("It was a success");

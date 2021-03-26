@@ -1,5 +1,6 @@
 package DB.Queries;
 
+import Annotations.IgnoreORM;
 import Models.Database;
 import Models.TableModel;
 import Threads.MakeThreadPool;
@@ -17,6 +18,33 @@ public class ReadQuery {
     static PreparedStatement preparedStatement;
     static Future query;
     static ResultSet queryResult;
+
+    public static <T> ResultSet readRow(T obj) {
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+
+            Connection conn = Database.accessPool();
+            preparedStatement = conn.prepareStatement(buildSelectRow(obj));
+            ResultSet rs = preparedStatement.executeQuery();
+            Database.releaseConn(conn);
+
+
+            return rs;
+        });
+
+        try {
+            queryResult = (ResultSet) future.get();
+            return queryResult;
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static <T> String buildSelectRow(T obj) {
+        return new String("Select * from "  +obj.getClass().getSimpleName());
+    }
 
     // Not sure i need to specify the table name
     private void buildSelect(String tableName) {
@@ -159,6 +187,74 @@ public class ReadQuery {
 
     }
 
+    public static <T>  ResultSet read(T obj){
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+
+            Connection conn = Database.accessPool();
+            preparedStatement = conn.prepareStatement(buildSelect(obj));
+            ResultSet rs = preparedStatement.executeQuery();
+            Database.releaseConn(conn);
+
+
+            return rs;
+        });
+
+        try {
+            queryResult = (ResultSet) future.get();
+            return queryResult;
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    public static <T>  ResultSet readAll(T obj){
+        Future future = MakeThreadPool.executorService.submit((Callable) () -> {
+            System.out.println(Thread.currentThread().getId());
+            sql = new StringBuilder();
+
+            Connection conn = Database.accessPool();
+            preparedStatement = conn.prepareStatement(buildSelectAll(obj));
+            ResultSet rs = preparedStatement.executeQuery();
+            Database.releaseConn(conn);
+
+
+            return rs;
+        });
+
+        try {
+            queryResult = (ResultSet) future.get();
+            return queryResult;
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    private static <T> String buildSelectAll(T obj) {
+        return new String("Select * from " + obj.getClass().getSimpleName());
+    }
+
+    public static <T> String buildSelect(T obj){
+        sql = new StringBuilder("Select ");
+        StringBuilder sqlFields = new StringBuilder();
+        for(Field fields : obj.getClass().getDeclaredFields()){
+            if(fields.isAnnotationPresent(IgnoreORM.class)){
+                continue;
+            }
+            sqlFields.append(fields.getName() + " ,");
+
+        }
+        sql.append(sqlFields.deleteCharAt(sqlFields.length()-1));
+        sql.append(" From " + obj.getClass().getSimpleName());
+
+        return sql.toString();
+    }
+
     public static void executeReadPrint(TableModel table, Field... fields) {
         MakeThreadPool.executorService.submit(() -> {
             System.out.println(Thread.currentThread().getId());
@@ -185,29 +281,11 @@ public class ReadQuery {
                 e.printStackTrace();
             }
 
-
-//        try {
-//            queryResult = (ResultSet) future.get();
-//
-//        } catch (InterruptedException | ExecutionException e) {
-//            e.printStackTrace();
-//            return;
-//        }
-
-//        try {
-//            while (queryResult.next()) {
-//                System.out.println("Hitting");
-//                System.out.println(queryResult.getMetaData().getColumnType(2));
-//                return;
-//            }
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-            System.out.println("Reached the bottom not sure why");
             return;
 
         });
+
+
 
 
     }

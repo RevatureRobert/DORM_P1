@@ -1,6 +1,7 @@
 package DAO;
 
 import DB.Queries.*;
+import DB.Queries.TCL.TransactionDAO;
 import Models.TableModel;
 
 import java.lang.reflect.Field;
@@ -122,8 +123,13 @@ public class BasicDao implements DAOUtil {
     public <T> int update(T obj , String[] colNames ,String...colVals){
         return new UpdateQuery().executeUpdate(obj,colNames,colVals);
     }
+
+    public <T> int update(T obj){
+        return new UpdateQuery().executeUpdate(obj);
+    }
     // Not sure if this works
     //Lets say its still in beta
+    @Deprecated
     public int update(TableModel obj){
         return UpdateQuery.executeUpdate(obj);
     }
@@ -139,6 +145,20 @@ public class BasicDao implements DAOUtil {
     public <T> boolean drop(T obj){
         return new DropQuery().executeDrop(obj);
     }
+
+    public <T> ResultSet read(T obj){
+        return ReadQuery.read(obj);
+    }
+
+    public <T> ResultSet readAll(T obj){
+        return ReadQuery.readAll(obj);
+    }
+
+    public <T> ResultSet readRow(T obj){
+        return ReadQuery.readRow(obj);
+    }
+
+
 
 
 }

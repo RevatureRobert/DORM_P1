@@ -51,7 +51,7 @@ public class UpdateQuery {
         sql.append(sqlFields);
     }
 
-
+    @Deprecated
     public static int executeUpdate(TableModel table) {
 
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
@@ -69,19 +69,11 @@ public class UpdateQuery {
 
         try {
             queryResult = (int) future.get();
-
+            return queryResult;
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return -1;
         }
-
-        if (queryResult > 0) {
-            System.out.println(queryResult);
-            return -1;
-        }
-
-
-        return queryResult;
 
     }
 
@@ -264,12 +256,16 @@ public class UpdateQuery {
     }
 
 
-    public <T> void buildUpdate(T obj) {
+    private  <T> void buildUpdate(T obj) {
         sql.append("Update " + obj.getClass().getSimpleName() + " Set ");
         StringBuilder sqlFields = new StringBuilder();
         for (Field field : obj.getClass().getDeclaredFields()) {
+            if(field.isAnnotationPresent(IgnoreORM.class)){
+                continue;
+            }
             field.setAccessible(true);
             try {
+                field.setAccessible(true);
                 if (field.getType().getSimpleName().equals("String")) {
                     sqlFields.append(field.getName() + "=" + "\'" + field.get(obj) + "\'" + ",");
                 } else {
@@ -295,12 +291,13 @@ public class UpdateQuery {
 
         for (Field field : pks) {
             try {
-                sqlFields.append(field.getName() + " = " + field.get(obj) + "AND");
+                field.setAccessible(true);
+                sqlFields.append(field.getName() + " = " + field.get(obj) + " AND ");
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
-        sqlFields.delete(sqlFields.length()-3 ,sqlFields.length());
+        sqlFields.delete(sqlFields.length()-4 ,sqlFields.length());
         sql.append(sqlFields);
 
     }
@@ -349,7 +346,7 @@ public class UpdateQuery {
 
     }
 
-    public <T> void buildUpdate(T obj, String[] colName, String[] colVals) {
+    private <T> void buildUpdate(T obj, String[] colName, String[] colVals) {
         Class objClazz = obj.getClass();
         sql.append("Update " + objClazz.getSimpleName() + " Set ");
         StringBuilder sqlFields = new StringBuilder();

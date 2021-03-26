@@ -4,14 +4,17 @@ import Annotations.Entity;
 import DAO.BasicDao;
 import DB.ConnectionPool.BasicConnPool;
 import DB.ConnectionPool.ConnectionPool2;
+import FileReader.ReadPropertyFile.ReadingPropertyFile;
 import RefelctionsWork.GetClasses;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
+import java.io.PrintStream;
 
 public class Database {
 
@@ -27,8 +30,42 @@ public class Database {
 
         }
         try {
+            ReadingPropertyFile reader = new ReadingPropertyFile();
             connectionPool = BasicConnPool
-                    .create("jdbc:h2:tcp://localhost/~/test", "sa", "");
+                    .create(reader.getProp("DB.url"), reader.getProp("DB.username"), reader.getProp("DB.acess"));
+        } catch (
+                SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public Database(File configFile) {
+        for (Class clazz : GetClasses.getEntities()) {
+            TableModel tableModel = new TableModel(clazz);
+            tables.add(tableModel);
+
+        }
+        try {
+            ReadingPropertyFile reader = new ReadingPropertyFile(configFile);
+            connectionPool = BasicConnPool
+                    .create(reader.getProp("DB.url"), reader.getProp("DB.username"), reader.getProp("DB.acess"));
+        } catch (
+                SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Database(String url , String user ,String pass) {
+        for (Class clazz : GetClasses.getEntities()) {
+            TableModel tableModel = new TableModel(clazz);
+            tables.add(tableModel);
+
+        }
+        try {
+
+            connectionPool = BasicConnPool
+                    .create(url, user, pass);
         } catch (
                 SQLException e) {
             e.printStackTrace();
@@ -207,12 +244,7 @@ public class Database {
     }
 
     public <T> int update(T obj) {
-        if (obj.getClass().isAnnotationPresent(Entity.class)) {
-            return dao.update(new TableModel(obj.getClass()));
-        } else {
-            System.out.println("Have not implemented this feature yet please use another method");
-            return -1;
-        }
+       return dao.update(obj);
     }
 
     public <T> int delete(T obj, String[] colNames, String[] colvals) {
@@ -227,6 +259,37 @@ public class Database {
 
     public <T> boolean drop(T obj){
         return dao.drop(obj);
+    }
+
+    public <T> ResultSet read(T obj){return dao.read(obj);};
+
+    public <T> ResultSet readAll(T obj){return dao.readAll(obj);};
+
+    public <T> ResultSet readRow(T obj){return dao.readRow(obj);};
+
+    public void printResultSet(ResultSet rs){
+        System.out.println();
+        try {
+            System.out.println("Select from " + rs.getMetaData().getTableName(1));
+            System.out.println(rs.getMetaData().getColumnLabel(1));
+            if(rs != null){
+                for(int i = 1; i <= rs.getMetaData().getColumnCount();i++){
+                    System.out.print(rs.getMetaData().getColumnName(i) + "-------------");
+                }
+            }
+            System.out.println();
+            while (rs.next()) {
+                for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+//                    System.out.printf("'%-10s' %n", rs.getString(i) );
+                    System.out.print(rs.getString(i)+ "           ");
+                }
+                System.out.println();
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /*
