@@ -1,0 +1,40 @@
+
+0
+java:S1220""Move this file to a named package.
+Y	java:S125"<This block of commented-out lines of code should be removed.(ÚÖÎû8¶ë×†/
+]	java:S125a"<This block of commented-out lines of code should be removed.(ÕÖøÍøÿÿÿÿ8¶ë×†/
+X
+java:S1854!"6Remove this useless assignment to local variable "c3".(ÇÑ°şÿÿÿÿ8ëååè†/
+]	java:S125["<This block of commented-out lines of code should be removed.(Â ¾øûÿÿÿÿ8¶ë×†/
+U
+java:S1128"8Remove this unused import 'DB.Queries.CreateTableQuery'.(¿³š×8™˜ôß†/
+O
+java:S1128"2Remove this unused import 'java.sql.SQLException'.(ÛïÆŸ8¶ë×†/
+X	java:S125N"<This block of commented-out lines of code should be removed.(æ±8¶ë×†/
+X	java:S125J"<This block of commented-out lines of code should be removed.(§Âæú8¶ë×†/
+X	java:S125&"<This block of commented-out lines of code should be removed.(Ò¢Â¾8ï…Êé†/
+X	java:S125†"<This block of commented-out lines of code should be removed.(ââ¾Y8¶ë×†/
+D
+java:S1481 "'Remove this unused "c2" local variable.(ñ„â8€Ç½å†/
+^	java:S125”"<This block of commented-out lines of code should be removed.(’ï¼¿ıÿÿÿÿ8¶ë×†/
+X	java:S125U"<This block of commented-out lines of code should be removed.(ê¯¾Á8¶ë×†/
+S
+java:S1854 "6Remove this useless assignment to local variable "c2".(ñ„â8€Ç½å†/
+S
+java:S1854"6Remove this useless assignment to local variable "c1".(÷òì8ö•è†/
+X
+java:S1128"<Remove this unused import 'DB.ConnectionPool.BasicConnPool'.(Ş¼ş8¶ë×†/
+]	java:S125/"<This block of commented-out lines of code should be removed.(åÑ´íıÿÿÿÿ8¯Êä†/
+X	java:S125z"<This block of commented-out lines of code should be removed.(íÀüÓ8¶ë×†/
+`
+java:S1128">Remove this unused import 'DB.ConnectionPool.ConnectionPool2'.(Ê¨‚Õÿÿÿÿÿ8¶ë×†/
+D
+java:S1481"'Remove this unused "c1" local variable.(÷òì8ö•è†/
+M
+java:S1128"0Remove this unused import 'java.util.ArrayList'.(÷‰îƒ8¶ë×†/
+X	java:S125("<This block of commented-out lines of code should be removed.(»†ˆª8İİè†/
+X	java:S125@"<This block of commented-out lines of code should be removed.(€…™8ÔÆÀÛ†/
+]	java:S1257"<This block of commented-out lines of code should be removed.(µé­æÿÿÿÿÿ8ƒÛ–ß†/
+X	java:S125C"<This block of commented-out lines of code should be removed.(æÆ¼‰8¶ë×†/
+I
+java:S1481!"'Remove this unused "c3" local variable.(ÇÑ°şÿÿÿÿ8ëååè†/
