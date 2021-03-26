@@ -32,13 +32,14 @@ public class Database {
         try {
             ReadingPropertyFile reader = new ReadingPropertyFile();
             connectionPool = BasicConnPool
-                    .create(reader.getProp("DB.url"), reader.getProp("DB.username"), reader.getProp("DB.access"));
+                    .create(reader.getProp("postgres.url"), reader.getProp("postgres.username"), reader.getProp("postgres.access"), reader.getProp("postgres.classForName"));
         } catch (
                 SQLException e) {
             e.printStackTrace();
         }
     }
-    public Database(File file) {
+
+    public Database(File file, String db) {
         for (Class clazz : GetClasses.getEntities()) {
             TableModel tableModel = new TableModel(clazz);
             tables.add(tableModel);
@@ -47,7 +48,7 @@ public class Database {
         try {
             ReadingPropertyFile reader = new ReadingPropertyFile(file);
             connectionPool = BasicConnPool
-                    .create(reader.getProp("DB.url"), reader.getProp("DB.username"), reader.getProp("DB.access"));
+                    .create(reader.getProp(db + ".url"), reader.getProp(db + ".username"), reader.getProp(db + ".access"), reader.getProp(db + ".access"));
         } catch (
                 SQLException e) {
             e.printStackTrace();
@@ -212,11 +213,8 @@ public class Database {
 
     public <T> boolean create(T obj) {
 
-        if (obj.getClass().isAnnotationPresent(Entity.class)) {
-            return dao.create(new TableModel(obj.getClass()));
-        } else {
-            return dao.create(obj);
-        }
+
+        return dao.create(obj);
 
 
     }
@@ -226,7 +224,11 @@ public class Database {
     }
 
     public <T> int update(T obj) {
-       return dao.update(obj);
+        return dao.update(obj);
+    }
+
+    public <T> int update(T obj ,T obj2){
+        return dao.update(obj ,obj2);
     }
 
     public <T> int delete(T obj, String[] colNames, String[] colvals) {
@@ -239,24 +241,36 @@ public class Database {
 
     }
 
-    public <T> boolean drop(T obj){
+    public <T> boolean drop(T obj) {
         return dao.drop(obj);
     }
 
 
-    public <T> ResultSet read(T obj){return dao.read(obj);};
+    public <T> ResultSet read(T obj) {
+        return dao.read(obj);
+    }
 
-    public <T> ResultSet readAll(T obj){return dao.readAll(obj);};
+    ;
 
-    public <T> ResultSet readRow(T obj){return dao.readRow(obj);};
+    public <T> ResultSet readAll(T obj) {
+        return dao.readAll(obj);
+    }
 
-    public void printResultSet(ResultSet rs){
+    ;
+
+    public <T> ResultSet readRow(T obj) {
+        return dao.readRow(obj);
+    }
+
+    ;
+
+    public void printResultSet(ResultSet rs) {
         System.out.println();
         try {
             System.out.println("Select from " + rs.getMetaData().getTableName(1));
             System.out.println(rs.getMetaData().getColumnLabel(1));
-            if(rs != null){
-                for(int i = 1; i <= rs.getMetaData().getColumnCount();i++){
+            if (rs != null) {
+                for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                     System.out.print(rs.getMetaData().getColumnName(i) + "-------------");
                 }
             }
@@ -264,7 +278,7 @@ public class Database {
             while (rs.next()) {
                 for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
 //                    System.out.printf("'%-10s' %n", rs.getString(i) );
-                    System.out.print(rs.getString(i)+ "           ");
+                    System.out.print(rs.getString(i) + "           ");
                 }
                 System.out.println();
 
@@ -276,14 +290,14 @@ public class Database {
     }
 
 
-    public void close(){
+    public void close() {
         MakeThreadPool.executorService.shutdown();
     }
 
     @Override
     public void finalize() {
 
-            MakeThreadPool.executorService.shutdown();
+        MakeThreadPool.executorService.shutdown();
     }
 
     /*

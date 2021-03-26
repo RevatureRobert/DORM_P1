@@ -12,6 +12,8 @@ import Threads.MakeThreadPool;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 
 public class Driver {
@@ -36,12 +38,24 @@ public class Driver {
 
 //        Database db = new Database("jdbc:h2:tcp://localhost/~/test" , "sa","");
         Database db = new Database();
+        // db.add(new Person());
+
+
+        // System.out.println(db.update(new Person(420, LocalDate.now(), "Lebum" , "BiggieSmalls") ,new String[]{"id","fname"}, new String[]{"40","James"}));
+        Person p1 = new Person(420, LocalDate.now(), "MArio", "Lopez");
+        Person p2 = new Person(4, LocalDate.now(), "Charles", "Person");
+
+        Person p3 = new Person(5, LocalDate.now(), "Messi", "Shoot");
+        Person p4 = new Person(6, LocalDate.now(), "Ronny", "Score");
+        // Not sure what to do with the update i can update based on the PK
+        //db.update(p4,new String[]{"id","fname"}, new String[] {"50","Lebron"});
+        //db.update(p1, p2);
+        db.update(p1);
 //
 //
-        db.printResultSet(db.read(c2));
+
 
         db.close();
-
 
 
     }

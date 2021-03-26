@@ -79,6 +79,7 @@ public class CreateTableQuery {
             initlizeMap();
             buildCreate(table);
             Connection conn = Database.accessPool();
+            System.out.println(sql);
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
             Database.releaseConn(conn);
@@ -202,6 +203,7 @@ public class CreateTableQuery {
         types.put("double", "double");
         types.put("byte[]", "LongVarBinary");
         types.put("Date", "Date");
+        types.put("LocalDate" ,"Date");
         types.put("Time", "Time");
         types.put("TimeStamp", "TimeStamp");
     }

@@ -112,6 +112,10 @@ public class BasicDao implements DAOUtil {
         return InsertQuery.insert(obj);
     }
 
+  public <T> boolean insert(T... obj){
+        return InsertQuery.insert(obj);
+  }
+
     public <T> boolean create(T obj){
         return new CreateTableQuery().createTable(obj);
     }
@@ -126,6 +130,10 @@ public class BasicDao implements DAOUtil {
 
     public <T> int update(T obj){
         return new UpdateQuery().executeUpdate(obj);
+    }
+
+    public <T> int update(T obj , T obj2){
+        return UpdateQuery.executeUpdate(obj ,obj2);
     }
     // Not sure if this works
     //Lets say its still in beta
