@@ -90,7 +90,6 @@ public class BasicConnPool implements ConnectionPool2 {
         connectionPool.add(connection);
         return usedConnections.remove(connection);
     }
-
     @Override
     public String getUrl() {
         return this.url;

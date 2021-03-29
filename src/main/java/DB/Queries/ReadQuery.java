@@ -46,7 +46,7 @@ public class ReadQuery {
 
     private static <T> Field[] buildSelectRow(T obj) {
         StringBuilder sqlFields = new StringBuilder();
-         sqlFields.append(("Select * from "  + obj.getClass().getSimpleName()) + " Where ");
+        sqlFields.append(("Select * from " + obj.getClass().getSimpleName()) + " Where ");
 
         // doing this to isolate all the fields with the ids in the name
         // Im not sure what the naming convention of their table since i was not able to read with reflections
@@ -68,15 +68,12 @@ public class ReadQuery {
         }
         // If there are no primary keys
         // but i think this will break everything
-        if(pks.size() > 0){
+        if (pks.size() > 0) {
             sqlFields.delete(sqlFields.length() - 4, sqlFields.length());
         }
-
         sql.append(sqlFields);
         System.out.println(sql);
         return pks.toArray(new Field[0]);
-
-
     }
 
     // Not sure i need to specify the table name
@@ -99,7 +96,6 @@ public class ReadQuery {
             sql.append("Select * from " + table.getTableName());
             return;
         }
-
         sql.append("Select (");
         for (Field field : fields) {
             sql.append(field.getName() + ",");
@@ -114,7 +110,6 @@ public class ReadQuery {
     }
 
     public boolean executeRead(String tableName, Field... fields) {
-
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
             System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
@@ -126,28 +121,22 @@ public class ReadQuery {
 
             return rs;
         });
-
         try {
             queryResult = (ResultSet) future.get();
-
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return false;
         }
-
         try {
             if (queryResult.next()) {
                 System.out.println(queryResult);
                 return true;
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
         System.out.println("Reached the bottom not sure why");
         return false;
-
-
     }
 
     public ResultSet executeRead(TableModel table) {
@@ -165,22 +154,12 @@ public class ReadQuery {
 
         try {
             queryResult = (ResultSet) future.get();
+            return queryResult;
 
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return null;
         }
-
-        try {
-            if (queryResult.next()) {
-                return queryResult;
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Reached the bottom not sure why");
-        return null;
 
     }
 
@@ -197,21 +176,17 @@ public class ReadQuery {
 
             return rs;
         });
-
         try {
             queryResult = (ResultSet) future.get();
-
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return false;
         }
-
         try {
             if (queryResult.next()) {
                 System.out.println(queryResult);
                 return true;
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -220,20 +195,16 @@ public class ReadQuery {
 
     }
 
-    public static <T>  ResultSet read(T obj){
+    public static <T> ResultSet read(T obj) {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
-
             Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(buildSelect(obj));
             ResultSet rs = preparedStatement.executeQuery();
             Database.releaseConn(conn);
-
-
             return rs;
         });
-
         try {
             queryResult = (ResultSet) future.get();
             return queryResult;
@@ -244,20 +215,16 @@ public class ReadQuery {
 
     }
 
-    public static <T>  ResultSet readAll(T obj){
+    public static <T> ResultSet readAll(T obj) {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
             //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
-
             Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(buildSelectAll(obj));
             ResultSet rs = preparedStatement.executeQuery();
             Database.releaseConn(conn);
-
-
             return rs;
         });
-
         try {
             queryResult = (ResultSet) future.get();
             return queryResult;
@@ -265,26 +232,23 @@ public class ReadQuery {
             System.out.println("Something went wrong in the query");
             return null;
         }
-
     }
 
     private static <T> String buildSelectAll(T obj) {
         return new String("Select * from " + obj.getClass().getSimpleName());
     }
 
-    public static <T> String buildSelect(T obj){
+    public static <T> String buildSelect(T obj) {
         sql = new StringBuilder("Select ");
         StringBuilder sqlFields = new StringBuilder();
-        for(Field fields : obj.getClass().getDeclaredFields()){
-            if(fields.isAnnotationPresent(IgnoreORM.class)){
+        for (Field fields : obj.getClass().getDeclaredFields()) {
+            if (fields.isAnnotationPresent(IgnoreORM.class)) {
                 continue;
             }
             sqlFields.append(fields.getName() + " ,");
-
         }
-        sql.append(sqlFields.deleteCharAt(sqlFields.length()-1));
+        sql.append(sqlFields.deleteCharAt(sqlFields.length() - 1));
         sql.append(" From " + obj.getClass().getSimpleName());
-
         return sql.toString();
     }
 
@@ -301,25 +265,16 @@ public class ReadQuery {
                 System.out.println("Select from " + table.getTableName());
                 System.out.println(rs.getMetaData().getColumnName(1));
                 while (rs.next()) {
-
                     for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                         if (i > 1) System.out.print(",  ");
                         System.out.println(rs.getString(i).replaceFirst("ROW", "   "));
                     }
-
                 }
-
                 Database.releaseConn(conn);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-
             return;
-
         });
-
-
-
-
     }
 }

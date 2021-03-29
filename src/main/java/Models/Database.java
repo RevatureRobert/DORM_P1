@@ -1,6 +1,5 @@
 package Models;
 
-import Annotations.Entity;
 import DAO.BasicDao;
 import DAO.TransactionDAO;
 import DB.ConnectionPool.BasicConnPool;
@@ -13,7 +12,6 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -22,7 +20,7 @@ public class Database {
     public Set<TableModel> tables = new HashSet<>();
     private BasicDao dao = new BasicDao();
     private TransactionDAO transactionDAO;
-    private static ConnectionPool2 connectionPool = null;
+    protected static ConnectionPool2 connectionPool = null;
 
 
     public Database() {
@@ -175,7 +173,7 @@ public class Database {
     }
 
     @Deprecated
-    public boolean insertIntoTable(String tableName, Field[] colNames, String[] colVals) {
+    public int insertIntoTable(String tableName, Field[] colNames, String[] colVals) {
         return dao.insertIntoTable(tableName, colNames, colVals);
     }
 

@@ -80,8 +80,6 @@ public class CreateTableQuery {
             sql.append(new ForeignKeyCheck().buildFK(field));
         }
 
-
-//        System.out.println( "In build "+ sql);
     }
 
 

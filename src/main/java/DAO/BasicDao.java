@@ -65,7 +65,7 @@ public class BasicDao implements DAOUtil {
 //        return DeleteQuery.executeDelete(tablename, id);
 //    }
 
-    public boolean insertIntoTable(String tableName, Field[] colName, String[] colVal) {
+    public int insertIntoTable(String tableName, Field[] colName, String[] colVal) {
         return InsertQuery.executeInsert(tableName, colName ,colVal);
     }
 

@@ -31,10 +31,6 @@ public class ForeignKeyCheck {
             } else {
             }
 
-//             Car
-//            ADD FOREIGN KEY (PersonID) REFERENCES Person(ID)  ;
-//            Alter Table Car
-//            ADD Foreign Key (name) references Person(fname);
         }
         return sqlStr.toString();
     }
@@ -61,7 +57,6 @@ public class ForeignKeyCheck {
             System.out.println("Foreign Key Not able to be created ");
             return false;
         }
-
     }
 
     public boolean isFKValid(TableModel tableModel, String colName) {
