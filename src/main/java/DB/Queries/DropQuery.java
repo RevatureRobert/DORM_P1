@@ -19,7 +19,7 @@ public class DropQuery {
 
     public boolean executeDrop(TableModel table) {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+           // System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildDrop(table);
             Connection conn = Database.accessPool();

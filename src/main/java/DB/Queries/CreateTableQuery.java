@@ -57,7 +57,7 @@ public class CreateTableQuery {
         StringBuilder sqlStr = new StringBuilder();
         sqlStr.append("Create table IF NOT exists " + objClazz.getSimpleName());
         StringBuilder sqlFields = new StringBuilder();
-        System.out.println(objClazz.getSimpleName());
+       // System.out.println(objClazz.getSimpleName());
         for (Field fields : objClazz.getDeclaredFields()) {
             if (!getSQlCreateQuery(fields).equals(""))
                 sqlFields.append(getSQlCreateQuery(fields) + ",");

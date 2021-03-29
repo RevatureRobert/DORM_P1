@@ -240,7 +240,8 @@ public class Database {
         return dao.create(obj);
     }
 
-    public <T> boolean create(T... obj) {
+    @SafeVarargs
+    public final <T> boolean create(T... obj) {
         boolean success = false;
         for (T instance : obj) {
             for (TableModel t : getTables()) {

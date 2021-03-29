@@ -23,7 +23,7 @@ public class ReadQuery {
 
     public static <T> ResultSet readRow(T obj) {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+           // System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             Field[] fields = buildSelectRow(obj);
             Connection conn = Database.accessPool();
@@ -57,7 +57,7 @@ public class ReadQuery {
                 pks.add(pk);
             }
         }
-        System.out.println(pks.size());
+       // System.out.println(pks.size());
         for (Field field : pks) {
             try {
                 field.setAccessible(true);
@@ -72,7 +72,7 @@ public class ReadQuery {
             sqlFields.delete(sqlFields.length() - 4, sqlFields.length());
         }
         sql.append(sqlFields);
-        System.out.println(sql);
+        //System.out.println(sql);
         return pks.toArray(new Field[0]);
     }
 

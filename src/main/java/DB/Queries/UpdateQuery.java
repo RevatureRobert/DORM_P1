@@ -186,16 +186,13 @@ public class UpdateQuery {
         });
         try {
             queryResult = (int) future.get();
+            return queryResult;
+
 
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return -1;
         }
-        if (queryResult > 0) {
-            System.out.println(queryResult);
-            return -1;
-        }
-        return queryResult;
     }
 
 
@@ -204,10 +201,10 @@ public class UpdateQuery {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
             if (colNames.length != colVals.length)
                 return null;
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate(obj, colNames);
-            System.out.println(sql);
+            //System.out.println(sql);
             Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
 
@@ -367,7 +364,7 @@ public class UpdateQuery {
 
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
 
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate(obj);
             Connection conn = Database.accessPool();
@@ -406,12 +403,12 @@ public class UpdateQuery {
 
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
 
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate2(obj2);
             Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
-            System.out.println(sql);
+            //System.out.println(sql);
             int counter = 1;
             for (Field field : obj.getClass().getDeclaredFields()) {
                 field.setAccessible(true);

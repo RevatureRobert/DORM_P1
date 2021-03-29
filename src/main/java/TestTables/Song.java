@@ -16,4 +16,8 @@ public class Song {
         this.length = length;
         this.artist = artist;
     }
+
+    public Song() {
+
+    }
 }

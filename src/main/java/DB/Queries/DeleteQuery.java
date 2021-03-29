@@ -108,7 +108,7 @@ public class DeleteQuery {
 
     public <T> int delete(T obj, String[] colNames, String[] colVals) {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildDelete(obj, colNames);
             Connection conn = Database.accessPool();
@@ -122,7 +122,7 @@ public class DeleteQuery {
             }
             int rs = preparedStatement.executeUpdate();
             Database.releaseConn(conn);
-
+            System.out.println(sql);
             return rs;
         });
 
@@ -137,25 +137,26 @@ public class DeleteQuery {
             return -1;
         } catch (ExecutionException e) {
             System.out.println("Something went wrong in the query");
+            e.printStackTrace();
             return -1;
         }
     }
 
     private <T> void buildDelete(T obj, String[] colNames) {
-        StringBuilder sqlStr = new StringBuilder("Delete from");
+        StringBuilder sqlStr = new StringBuilder("Delete from ");
         sqlStr.append(obj.getClass().getSimpleName() + " ");
         sqlStr.append("Where ");
         for (String colname : colNames) {
-            sqlStr.append(colname + " = " + "?" + "AND");
+            sqlStr.append(colname + " = " + "?" + " AND ");
         }
 
-        sql = sqlStr.delete(sqlStr.length() - 3, sqlStr.length());
+        sql = sqlStr.delete(sqlStr.length() - 4, sqlStr.length());
 //        System.out.println(sql);
     }
 
     public <T> int delete(T obj) {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             Field[] fields = buildDelete(obj);
             Connection conn = Database.accessPool();
@@ -206,7 +207,7 @@ public class DeleteQuery {
                 pks.add(pk);
             }
         }
-        System.out.println(pks.size());
+        //System.out.println(pks.size());
         for (Field field : pks) {
             try {
                 field.setAccessible(true);
@@ -222,7 +223,7 @@ public class DeleteQuery {
         }
 
         sql.append(sqlFields);
-        System.out.println(sql);
+        //System.out.println(sql);
         return pks.toArray(new Field[0]);
     }
 }
