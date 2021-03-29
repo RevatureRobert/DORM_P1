@@ -1,6 +1,10 @@
-package DB.Queries.TCL;
+package DAO;
 
 import DB.Queries.*;
+import DB.Queries.TCL.Commit;
+import DB.Queries.TCL.Rollback;
+import DB.Queries.TCL.SavePoint;
+import DB.Queries.TCL.TransactionQueries;
 import Models.Database;
 import Models.TableModel;
 
@@ -20,15 +24,14 @@ public class TransactionDAO {
     static PreparedStatement preparedStatement;
     static Connection connection;
 
-    {
-        connection = Database.accessPool();
-    }
+
 
 
 
     public static void start() {
 
         try {
+            connection = Database.accessPool();
             connection.setAutoCommit(false);
             return;
         } catch (SQLException e) {
@@ -62,44 +65,38 @@ public class TransactionDAO {
         SavePoint.executeSavePoint(savepoint ,connection);
     }
 
-    public void add(){}
+    private void add(){}
 
 
-    public <T> boolean transInsert(T obj){
+    private  <T> boolean transInsert(T obj){
         return TransactionQueries.insert(obj ,connection);
     }
 
-    public <T> boolean transCreate(T obj){
+    private  <T> boolean transCreate(T obj){
         return new TransactionQueries().createTable(obj,connection);
     }
 
     // If the class has an annotation go through the table model creation process
-    public boolean transCreate(TableModel t){
+    private boolean transCreate(TableModel t){
         return TransactionQueries.executeCreate(t,connection);
     }
-    public <T> int transUpdate(T obj , String[] colNames ,String...colVals){
+    private  <T> int transUpdate(T obj , String[] colNames ,String...colVals){
         return new TransactionQueries().executeUpdate(obj,colNames,colVals ,connection);
     }
 
-    public <T> int transUpdate(T obj){
+    private  <T> int transUpdate(T obj){
         return new TransactionQueries().executeUpdate(obj,connection);
     }
-    // Not sure if this works
-    //Lets say its still in beta
-    @Deprecated
-//    public int transUpdate(TableModel obj){
-//        return TransactionQueries.executeUpdate(obj);
-//    }
 
-    public <T> int transDelete(T obj, String[] colnNames, String[] colVal) {
+    private  <T> int transDelete(T obj, String[] colnNames, String[] colVal) {
         return new TransactionQueries().delete(obj ,colnNames ,colVal,connection);
     }
 
-    public <T> int transDelete(T obj){
+    private  <T> int transDelete(T obj){
         return new TransactionQueries().delete(obj,connection);
     }
 
-    public <T> boolean transDrop(T obj){
+    private  <T> boolean transDrop(T obj){
         return new TransactionQueries().executeDrop(obj,connection);
 
     }

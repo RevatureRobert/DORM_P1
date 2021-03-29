@@ -43,8 +43,6 @@ O
 src/main/java/DAO/BasicDao.java,8\e\8ef283e489acd21e86ce5c3c3c96040af9a3726d
 X
 (src/main/java/DB/Queries/TCL/Commit.java,a\8\a8441932c3cf3accfdd1b58027fb0782b6ca6a43
-N
-src/main/java/DB/db.properties,a\6\a6cb8b9944dd20384c8a369e8c14a4cc346edbea
 r
 Bsrc/main/java/FileReader/ReadPropertyFile/ReadingPropertyFile.java,9\8\98d09efb76660f46842b4b72e244f955ac356d65
 W

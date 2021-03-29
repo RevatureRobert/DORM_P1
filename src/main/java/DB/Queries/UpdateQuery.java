@@ -391,7 +391,8 @@ public class UpdateQuery {
 //            // Im also not sure that they will have the annotations above their fields
             LinkedList<Field> pks = new LinkedList<>();
            for (Field pk : obj.getClass().getDeclaredFields()) {
-                if (pk.getName().contains("id") || pk.getName().contains("ID") || pk.getName().contains("Id") || pk.isAnnotationPresent(PrimaryKey.class)) {
+                if (pk.getName().contains("id") || pk.getName().contains("ID") || pk.getName().contains("Id") ||
+                        pk.getName().contains("iD") ||pk.isAnnotationPresent(PrimaryKey.class)) {
                     pks.add(pk);
                 }
             }

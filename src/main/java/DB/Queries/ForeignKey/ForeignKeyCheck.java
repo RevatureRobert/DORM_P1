@@ -20,7 +20,7 @@ public class ForeignKeyCheck {
     static Future query;
     static ResultSet queryResult;
 
-    // So from mu understand im doing a little sql injection here and its very very dangerous
+    // So from my understand im doing a little sql injection here and its very very dangerous
     // but the show must go on
     public String buildFK(Field... fields) {
         StringBuilder sqlStr = new StringBuilder();

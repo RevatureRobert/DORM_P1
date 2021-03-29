@@ -2,6 +2,7 @@ package Models;
 
 import Annotations.Entity;
 import DAO.BasicDao;
+import DAO.TransactionDAO;
 import DB.ConnectionPool.BasicConnPool;
 import DB.ConnectionPool.ConnectionPool2;
 import FileReader.ReadPropertyFile.ReadingPropertyFile;
@@ -20,6 +21,7 @@ public class Database {
 
     public Set<TableModel> tables = new HashSet<>();
     private BasicDao dao = new BasicDao();
+    private TransactionDAO transactionDAO = new TransactionDAO();
     private static ConnectionPool2 connectionPool = null;
 
 
@@ -27,7 +29,6 @@ public class Database {
         for (Class clazz : GetClasses.getEntities()) {
             TableModel tableModel = new TableModel(clazz);
             tables.add(tableModel);
-
         }
         try {
             ReadingPropertyFile reader = new ReadingPropertyFile();
@@ -43,7 +44,6 @@ public class Database {
         for (Class clazz : GetClasses.getEntities()) {
             TableModel tableModel = new TableModel(clazz);
             tables.add(tableModel);
-
         }
         try {
             ReadingPropertyFile reader = new ReadingPropertyFile(file);
@@ -55,32 +55,33 @@ public class Database {
         }
     }
 
-    public Database(String user, String access ,String url , String driver ) {
+    public Database(String user, String access, String url, String driver) {
         for (Class clazz : GetClasses.getEntities()) {
             TableModel tableModel = new TableModel(clazz);
             tables.add(tableModel);
-
         }
         try {
-
             connectionPool = BasicConnPool
-                    .create("postgres" ,"RevaturePro" ,"jdbc:postgresql://project1db.cbo6usfmqg0y.us-east-2.rds.amazonaws.com/postgres" ," org.postgresql.Driver");
+                    .create("postgres", "RevaturePro", "jdbc:postgresql://project1db.cbo6usfmqg0y.us-east-2.rds.amazonaws.com/postgres", " org.postgresql.Driver");
         } catch (
                 SQLException e) {
             e.printStackTrace();
         }
     }
 
+    @Deprecated
     public void printTablesNames() {
         for (TableModel table : tables) {
             System.out.println(table.getClazz().getSimpleName());
         }
     }
 
+    @Deprecated
     public void printFields(TableModel tableModel) {
         tableModel.printColumns();
     }
 
+    @Deprecated
     public void printFields(String tableName) {
         getTable(tableName).printColumns();
     }
@@ -117,12 +118,13 @@ public class Database {
         return null;
     }
 
-    public boolean createTable(TableModel table) {
-        return dao.CreateTable(table);
-    }
+//    public boolean createTable(TableModel table) {
+//        return dao.CreateTable(table);
+//    }
 
 
     // So my thinking is that they do not want to initialize every table
+    // The string name that are valid are only the ones that have the Entity anotation on them
     public boolean createTable(String... tableNames) {
         int size = tableNames.length;
         for (int i = 0; i < size; i++) {
@@ -131,25 +133,20 @@ public class Database {
         return true;
     }
 
-    // This method will create all the tables that were marked
+    // This method will create all the tables that were marked with the Entity Annotation
     public boolean createAllTables() {
 
         int size = tables.size();
         for (int i = 0; i < size; i++) {
             dao.CreateTable(getTableModelFromTables(i));
         }
-
-
         return true;
-
-
     }
 
     private TableModel getTableModelFromTables(int x) {
         int counter = 0;
         for (TableModel table : tables) {
             if (counter == x) {
-
                 return table;
             } else {
                 counter++;
@@ -158,81 +155,108 @@ public class Database {
         return null;
     }
 
-
+    @Deprecated
     public <T> boolean insertIntoTable(T obj, String tableName) {
         return dao.insertIntoTable(obj, getTable(tableName));
     }
-
+    @Deprecated
     public <T> boolean insertIntoTable(T obj, TableModel table) {
         return dao.insertIntoTable(obj, table);
     }
 
-
+    @Deprecated
     public int deleteFromTable(String tableName) {
         return dao.delete(getTable(tableName));
     }
 
-
+    @Deprecated
     public int deleteFromTable(TableModel table) {
         return dao.delete(table);
     }
 
+    @Deprecated
     public boolean insertIntoTable(String tableName, Field[] colNames, String[] colVals) {
         return dao.insertIntoTable(tableName, colNames, colVals);
     }
 
+    @Deprecated
     public ResultSet showAll(TableModel tableModel) {
         return dao.showAll(tableModel);
     }
 
+    @Deprecated
     public int updateTable(String tableName, String colName, String colVal, Field... fields) {
         return dao.updateTable(tableName, colName, colVal, fields);
     }
 
+    @Deprecated
     public ResultSet readAllTable(TableModel table) {
         return dao.showAll(table);
     }
 
+    @Deprecated
     public void readTable(TableModel table, Field... fields) {
         dao.readTable(table, fields);
     }
 
+    @Deprecated
     public void printReadTable(TableModel table, Field... fields) {
         dao.printReadTable(table, fields);
     }
 
+    @Deprecated
     public boolean dropTable(TableModel tableModel) {
         return dao.dropTable(tableModel);
     }
+
+    /*
+        This method only drop the tables that have annotations
+     */
 
     public boolean dropAllTables() {
         int size = tables.size();
         for (int i = 0; i < size; i++) {
             dao.dropTable(getTableModelFromTables(i));
         }
-
-
         return true;
     }
 
-    public boolean deleteByID(String tableName, Field[] fields, String[] values) {
+    @Deprecated
+    public boolean deleteBy(String tableName, Field[] fields, String[] values) {
         return dao.deleteById(tableName, fields, values);
     }
 
     public <T> boolean add(T obj) {
-
-
         return dao.insert(obj);
-
-
     }
 
+    public <T> boolean add(T... obj) { return dao.insert(obj); }
+
     public <T> boolean create(T obj) {
-
-
+        for (TableModel t : getTables()) {
+            if (t.getClazz() == obj.getClass()) {
+                return dao.create(t);
+            }
+        }
+        //If the object is not in the list of the tables with annotations then do the regular create
         return dao.create(obj);
+    }
 
+    public <T> boolean create(T... obj) {
+        boolean success = false;
+        for (T instance : obj) {
+            for (TableModel t : getTables()) {
+                if (instance.getClass() == t.getClazz()) {
+                    success = dao.create(t);
+                }
+            }
+            //If the object is not in the list of the tables with annotations then do the regular create
+            if (!success) {
+                success = dao.create(instance);
+            }
 
+        }
+        return success;
     }
 
     public <T> int update(T obj, String[] colNames, String[] colVals) {
@@ -243,8 +267,8 @@ public class Database {
         return dao.update(obj);
     }
 
-    public <T> int update(T obj ,T obj2){
-        return dao.update(obj ,obj2);
+    public <T> int update(T obj, T obj2) {
+        return dao.update(obj, obj2);
     }
 
     public <T> int delete(T obj, String[] colNames, String[] colvals) {
@@ -252,33 +276,25 @@ public class Database {
     }
 
     public <T> int delete(T obj) {
-
         return dao.delete(obj);
-
     }
 
     public <T> boolean drop(T obj) {
         return dao.drop(obj);
     }
 
-
     public <T> ResultSet read(T obj) {
         return dao.readRow(obj);
     }
-
-    ;
 
     public <T> ResultSet readAll(T obj) {
         return dao.readAll(obj);
     }
 
-    ;
-
     public <T> ResultSet readRow(T obj) {
         return dao.readRow(obj);
     }
 
-    ;
 
     public void printResultSet(ResultSet rs) {
         System.out.println();

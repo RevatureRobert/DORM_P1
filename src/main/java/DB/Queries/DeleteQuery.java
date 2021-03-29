@@ -102,28 +102,12 @@ public class DeleteQuery {
 
     }
 
-    public static <T> int executeDelete(TableModel table, Field... fields) {
-        buildDelete(table.getTableName(), fields);
-        System.out.println(sql);
-//        Connection connection = null;
-//        try {
-//            connection = DBConnection.getConnection();
-//            preparedStatement = connection.prepareStatement(sql.toString());
-//             return preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return -1;
-//        }
-        return 27;
-
-    }
-
 
     private static void buildDelete(String tableName, Field[] fields) {
         sql.append("Delete from " + tableName + " Where ");
-        System.out.println(fields.length);
+        //System.out.println(fields.length);
         for (Field field : fields) {
-            System.out.println("Hitting");
+            //System.out.println("Hitting");
             sql.append(field.getName()).append(" = ").append("?").append(" AND");
         }
         sql.delete(sql.length() - 3, sql.length());
@@ -135,7 +119,7 @@ public class DeleteQuery {
     public static boolean executeDelete(String tableName, Field[] fields, String[] values) {
 
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildDelete(tableName, fields);
             Connection conn = Database.accessPool();

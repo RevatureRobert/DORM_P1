@@ -8,6 +8,7 @@ import Models.TableModel;
 import TestTables.Car;
 import TestTables.Child;
 import TestTables.Person;
+import TestTables.Song;
 import Threads.MakeThreadPool;
 
 import java.lang.reflect.Field;
@@ -23,66 +24,21 @@ public class Driver {
 
         Car c1 = new Car(1000, "Car1", "2002", 10);
         Car c2 = new Car(50, "Car2", "2005", 10);
-        Car c3 = new Car(25, "Suck ", "2006", 10);
-        Car c4 = new Car(123, "IDK ", "BFF JILL", 10);
+        Car c3 = new Car(25, "Car3 ", "2006", 10);
+        Car c4 = new Car(123, "Car4 ", "2500", 11);
+
+        Song s1 = new Song(1, "Insert Song name here", 123123, "Akon");
+
+        Person p1 = new Person(10, LocalDate.now(), "Mario", "Plumber");
+        Person p2 = new Person(20, LocalDate.now(), "Charles", "Barkley");
+
+        Person p3 = new Person(30, LocalDate.now(), "Messi", "Leo");
+        Person p4 = new Person(33, LocalDate.now(), "Ronaldo", "Cris");
 
 
         Database db = new Database();
-        // db.add(new Person());
-        db.drop(new Car());
-        db.create(new Car());
-
-//
-        Person p1 = new Person(10, LocalDate.now(), "Mario", "PLumber");
-//        Person p2 = new Person(20, LocalDate.now(), "Charles", "Barkley");
-//
-//        Person p3 = new Person(30, LocalDate.now(), "Messi", "Leo");
-//        Person p4 = new Person(33, LocalDate.now(), "Ronaldo", "Cris");
-//        // Not sure what to do with the update i can update based on the PK
-//        //db.update(p4,new String[]{"id","fname"}, new String[] {"50","Lebron"});
-//
-//        db.printResultSet(db.readAll(new Person()));
-//        db.add(c1);
-        db.add(c2);
-//        db.add(c3);
-////        db.add(c4);
-//
-//        db.printResultSet(db.read(new Car()));
-//
-//
-////        db.add(new Person());
-//            db.add(p1);
-////        db.add(p2);
-////        db.add(p3);
-////        db.add(p4);
-//
-        db.printResultSet(db.read(p1));
-//
-//
-//        db.delete(p1);
-////        db.delete(p2);
-////        db.delete(p3);
-////        db.delete(p4);
-//
-        db.printResultSet(db.readAll(new Person()));
-//
-//        db.update(c2,c4);
-//
-//        c4.setYear("1950");
-//
-//        db.update(c4);
-//
-//        db.printResultSet(db.readAll(new Car()));
-//
-//        db.update(c4, new String[]{"id","year"}, new String[] {"5000", "2000"});
 
 
-        db.printResultSet(db.readAll(new Car()));
-//
-//
-        //db.drop(new Car());
-
-        db.printResultSet(db.readAll(new Car()));
 
 
         db.close();
