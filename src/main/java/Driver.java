@@ -1,21 +1,9 @@
-import DB.ConnectionPool.BasicConnPool;
-import DB.ConnectionPool.ConnectionPool2;
-import DB.Queries.CreateTableQuery;
-import DB.Queries.UpdateQuery;
 import Models.Database;
-
-import Models.TableModel;
 import TestTables.Car;
-import TestTables.Child;
 import TestTables.Person;
 import TestTables.Song;
-import Threads.MakeThreadPool;
 
-import java.lang.reflect.Field;
-import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.Period;
-import java.util.ArrayList;
 
 public class Driver {
 

@@ -21,7 +21,7 @@ public class Database {
 
     public Set<TableModel> tables = new HashSet<>();
     private BasicDao dao = new BasicDao();
-    private TransactionDAO transactionDAO = new TransactionDAO();
+    private TransactionDAO transactionDAO;
     private static ConnectionPool2 connectionPool = null;
 
 
@@ -319,6 +319,16 @@ public class Database {
         }
 
     }
+
+    public void startTransaction(){ TransactionDAO.start(); }
+
+    public void makeASavepoint(String savePointName){ TransactionDAO.savePoint(savePointName); }
+
+    public void rollback(){ TransactionDAO.rollBack();}
+
+    public void rollToSavePoint(String savePointName ){ TransactionDAO.rollBack(savePointName);}
+
+    public void commit(){TransactionDAO.end();}
 
 
     public void close() {
