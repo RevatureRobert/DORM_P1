@@ -66,8 +66,6 @@ public class UpdateQuery {
             Database.releaseConn(conn);
             return rs;
         });
-
-
         try {
             queryResult = (int) future.get();
             return queryResult;
@@ -75,7 +73,6 @@ public class UpdateQuery {
             e.printStackTrace();
             return -1;
         }
-
     }
 
 
@@ -129,8 +126,6 @@ public class UpdateQuery {
 
             return rs;
         });
-
-
         try {
             queryResult = (int) future.get();
 
@@ -143,8 +138,6 @@ public class UpdateQuery {
             System.out.println(queryResult);
             return -1;
         }
-
-
         return queryResult;
     }
 
@@ -163,8 +156,6 @@ public class UpdateQuery {
 
             return rs;
         });
-
-
         try {
             queryResult = (int) future.get();
 
@@ -172,17 +163,12 @@ public class UpdateQuery {
             e.printStackTrace();
             return -1;
         }
-
         if (queryResult > 0) {
             System.out.println(queryResult);
             return -1;
         }
-
-
         return queryResult;
     }
-
-
     public static int executeUpdate(TableModel table, Field whereCond, Field... fields) {
 
 
@@ -198,23 +184,15 @@ public class UpdateQuery {
 
             return rs;
         });
-
-
         try {
             queryResult = (int) future.get();
+            return queryResult;
+
 
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return -1;
         }
-
-        if (queryResult > 0) {
-            System.out.println(queryResult);
-            return -1;
-        }
-
-
-        return queryResult;
     }
 
 
@@ -223,10 +201,10 @@ public class UpdateQuery {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
             if (colNames.length != colVals.length)
                 return null;
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate(obj, colNames);
-            System.out.println(sql);
+            //System.out.println(sql);
             Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
 
@@ -239,9 +217,6 @@ public class UpdateQuery {
                 else{
                     preparedStatement.setObject(i + 1, colVals[i]);
                 }
-
-
-
             }
             int rs = preparedStatement.executeUpdate();
 
@@ -353,45 +328,20 @@ public class UpdateQuery {
                 else{
                     sqlFields.append(field.getName() + "=" + field.get(obj) + ",");
                 }
-
-
-
             } catch (SecurityException | IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
 ////        sql.append("( " + sqlFields.deleteCharAt(sqlFields.length() - 1) + " ) Values (");
         sql.append(sqlFields.deleteCharAt(sqlFields.length() - 1) + " Where ");
-//        for(Field field : obj.getClass().getDeclaredFields()){
-//            field.setAccessible(true);
-//            if (field.isAnnotationPresent(IgnoreORM.class)) {
-//                continue;
-//            }
-//            field.setAccessible(true);
-//            try {
-//                field.setAccessible(true);
-//                if(field.getType().getSimpleName().equalsIgnoreCase("String") || field.getType().getSimpleName().equalsIgnoreCase("LocalDate")){
-//                    sqlFields.append(field.getName() + "="+ "\'"+ "?"+"\'" + " AND ");
-//                }
-//                else {
-//                    sqlFields.append(field.getName() + "=" + " ?" + " AND ");
-//                }
-//
-//            } catch (SecurityException e) {
-//                e.printStackTrace();
-//            }
-//
-//
-//        }
-        //sql.append(sqlFields.delete(sqlFields.length()-4 ,sqlFields.length()) + " ;");
-
-            sqlFields = new StringBuilder();
+        sqlFields = new StringBuilder();
 //            // doing this to isolate all the fields with the ids in the name
 //            // Im not sure what the naming convention of their table since i was not able to read with reflections
 //            // Im also not sure that they will have the annotations above their fields
             LinkedList<Field> pks = new LinkedList<>();
            for (Field pk : obj.getClass().getDeclaredFields()) {
-                if (pk.getName().contains("id") || pk.getName().contains("ID") || pk.getName().contains("Id") || pk.isAnnotationPresent(PrimaryKey.class)) {
+                if (pk.getName().contains("id") || pk.getName().contains("ID") || pk.getName().contains("Id") ||
+                        pk.getName().contains("iD") ||pk.isAnnotationPresent(PrimaryKey.class)) {
                     pks.add(pk);
                 }
             }
@@ -414,24 +364,12 @@ public class UpdateQuery {
 
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
 
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate(obj);
             Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
-//            System.out.println(sql);
-//            int counter = 1;
-//            for (Field field : obj.getClass().getDeclaredFields()) {
-//                field.setAccessible(true);
-//                if (field.isAnnotationPresent(IgnoreORM.class)) {
-//                    continue;
-//                } else {
-//                    field.setAccessible(true);
-//                    preparedStatement.setObject(counter, field.get(obj));
-//                    counter++;
-//                }
-//
-//            }
+
             int rs = preparedStatement.executeUpdate();
 
             Database.releaseConn(conn);
@@ -465,12 +403,12 @@ public class UpdateQuery {
 
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
 
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildUpdate2(obj2);
             Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
-            System.out.println(sql);
+            //System.out.println(sql);
             int counter = 1;
             for (Field field : obj.getClass().getDeclaredFields()) {
                 field.setAccessible(true);

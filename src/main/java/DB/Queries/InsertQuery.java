@@ -24,36 +24,7 @@ public class InsertQuery {
 
     }
 
-    // Need to build an insert ot handle not just getting a whole table
-    // Maybe the user wants to insert some null values like not every field
 
-//    private static void buildInsert(TableModel table) {
-//        sql.append("Insert into " + table.getTableName());
-//        StringBuilder sqlFields = new StringBuilder();
-//        for (Field field : table.getAllFields()) {
-//            sqlFields.append(field.getName() + ",");
-//        }
-//        sql.append("( " + sqlFields.deleteCharAt(sqlFields.length() - 1) + " ) Values (");
-//        sqlFields = new StringBuilder();
-//        for (Field field : table.getAllFields()) {
-//            if (field.getType().getSimpleName().equals("String")) {
-//                try {
-//                    field.setAccessible(true);
-//                    sqlFields.append("\'" + field.get(table.getClazz().newInstance()) + "\'" + ",");
-//                } catch (IllegalAccessException | InstantiationException e) {
-//                    e.printStackTrace();
-//                }
-//            } else {
-//                try {
-//                    field.setAccessible(true);
-//                    sqlFields.append(field.get(table.getClazz().newInstance()) + ",");
-//                } catch (IllegalAccessException | InstantiationException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//        sql.append(sqlFields.deleteCharAt(sqlFields.length() - 1) + ");");
-//    }
 
     // Not sure how to implement an insert that can take objects and insert them into a table
     // prob not going to implement
@@ -122,8 +93,6 @@ public class InsertQuery {
 
             return rs;
         });
-
-
         try {
             queryResult = (int) future.get();
 
@@ -158,19 +127,14 @@ public class InsertQuery {
 
         try {
             queryResult = (int) future.get();
+            return true;
 
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return false;
         }
 
-        if (queryResult > 0) {
-            System.out.println(queryResult);
-            return true;
-        }
 
-        System.out.println("Reached the bottom not sure why");
-        return false;
 
     }
 
@@ -189,16 +153,9 @@ public class InsertQuery {
         }
         sql.deleteCharAt(sql.length() - 1);
         sql.append(" );");
-
-
-
-
-
-
-
     }
 
-    public static <T> boolean executeInsert(String tableName, Field[] colName , String[] colVals) {
+    public static <T> int executeInsert(String tableName, Field[] colName , String[] colVals) {
 
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
             System.out.println(Thread.currentThread().getId());
@@ -216,22 +173,14 @@ public class InsertQuery {
 
         try {
             queryResult = (int) future.get();
+            return queryResult;
 
         } catch (InterruptedException | ExecutionException e) {
             System.out.println(e.getCause());
             System.out.println("This caught it ");
             e.printStackTrace();
-            return false;
+            return -1;
         }
-
-        if (queryResult > 0) {
-            System.out.println(queryResult);
-            return true;
-        }
-
-        System.out.println("Reached the bottom not sure why");
-        return false;
-
     }
 
     private static void prepareTheStatement(PreparedStatement preparedStatement, String[] colVals) throws SQLException {
@@ -240,16 +189,6 @@ public class InsertQuery {
 
         }
 
-
-
-    }
-
-    private static boolean needQuotesForInsert(String fieldName){
-//        if(type.equalsIgnoreCase("int") || type.equalsIgnoreCase("double") ||
-//                type.equalsIgnoreCase("float") || type.equalsIgnoreCase("long")){
-//            return false;
-//        }
-        return true;
     }
 
     public static <T> boolean insert(T obj){
@@ -335,8 +274,6 @@ public class InsertQuery {
 
             return rs;
         });
-
-
         try {
             queryResult = (int) future.get();
             return true;
@@ -346,8 +283,6 @@ public class InsertQuery {
             e.printStackTrace();
             return false;
         }
-
-
     }
 
 
@@ -362,7 +297,6 @@ public class InsertQuery {
             }else{
                 sqlFields.append(field.getName() + ",");
             }
-
         }
         sql.append("( " + sqlFields.deleteCharAt(sqlFields.length() - 1) + " ) Values (");
         sqlFields = new StringBuilder();
@@ -371,26 +305,8 @@ public class InsertQuery {
                 continue;
             }
             sqlFields.append(" ?  ,");
-//            if (field.getType().getSimpleName().equals("String")) {
-//                try {
-//                    field.setAccessible(true);
-//                    sqlFields.append("\'" + field.get(obj) + "\'" + ",");
-//                } catch (IllegalAccessException e) {
-//                    e.printStackTrace();
-//                }
-//            } else {
-//                try {
-//                    field.setAccessible(true);
-//                    sqlFields.append(field.get(obj) + ",");
-//                } catch (IllegalAccessException e) {
-//                    e.printStackTrace();
-//                }
-//            }
         }
         sql.append(sqlFields.deleteCharAt(sqlFields.length() - 1) + ");");
-
-
-
     }
 
     public static <T> T getValue(Field field) {
@@ -404,6 +320,4 @@ public class InsertQuery {
         }
         return null;
     }
-
-
 }

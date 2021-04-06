@@ -26,48 +26,6 @@ public class DeleteQuery {
 
     }
 
-    // One issue i currently have is that i can only handle one Pk at a time and how do i decide if the user wants to an or an and
-//    private static void buildDelete(TableModel table) {
-//        sql.append("Delete From " + table.getTableName() + " Where ");
-//        StringBuilder sqlFields = new StringBuilder();
-////        for (Field field : table.getFields()) {
-////            if(field.getType().getSimpleName().equals("String")){
-////                sqlFields.append(field.getName() + "=" + "\'"+table.getValue(field).toString()+"\'" + ",");
-////            }
-////            else{
-////                sqlFields.append(field.getName() + "=" + table.getValue(field).toString() + ",");
-////            }
-////        }
-////        sql.append("( " + sqlFields.deleteCharAt(sqlFields.length() - 1) + " ) Values (");
-////        sql.append(sqlFields.deleteCharAt(sqlFields.length()-1) + " Where ");
-//        for (Field field : table.getPrimaryKeys()) {
-//            try {
-//                if (field.getType().getSimpleName().equals("String")) {
-//                    try {
-//                        field.setAccessible(true);
-//                        sqlFields.append(field.getName() + " = " + "\'" + field.get(table.getClazz()) + "\' ");
-//                    } catch (IllegalAccessException e) {
-//                        e.printStackTrace();
-//                    }
-//                } else {
-//
-//                    try {
-//                        field.setAccessible(true);
-//                        sqlFields.append(field.getName() + " = " + field.get(table.getClazz()));
-//                    } catch (IllegalAccessException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//
-//                }
-//                sql.append(sqlFields);
-//                System.out.println(sql);
-//            } catch (IllegalArgumentException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
 
     public static int executeDelete(TableModel table) {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
@@ -99,31 +57,14 @@ public class DeleteQuery {
             return -1;
         }
 
-
-    }
-
-    public static <T> int executeDelete(TableModel table, Field... fields) {
-        buildDelete(table.getTableName(), fields);
-        System.out.println(sql);
-//        Connection connection = null;
-//        try {
-//            connection = DBConnection.getConnection();
-//            preparedStatement = connection.prepareStatement(sql.toString());
-//             return preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return -1;
-//        }
-        return 27;
-
     }
 
 
     private static void buildDelete(String tableName, Field[] fields) {
         sql.append("Delete from " + tableName + " Where ");
-        System.out.println(fields.length);
+        //System.out.println(fields.length);
         for (Field field : fields) {
-            System.out.println("Hitting");
+            //System.out.println("Hitting");
             sql.append(field.getName()).append(" = ").append("?").append(" AND");
         }
         sql.delete(sql.length() - 3, sql.length());
@@ -135,7 +76,7 @@ public class DeleteQuery {
     public static boolean executeDelete(String tableName, Field[] fields, String[] values) {
 
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildDelete(tableName, fields);
             Connection conn = Database.accessPool();
@@ -156,24 +97,18 @@ public class DeleteQuery {
 
         try {
             queryResult = (int) future.get();
+            return true;
+
 
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return false;
         }
-
-        if (queryResult > 0) {
-            return true;
-        }
-
-
-        return true;
-
     }
 
     public <T> int delete(T obj, String[] colNames, String[] colVals) {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildDelete(obj, colNames);
             Connection conn = Database.accessPool();
@@ -187,7 +122,7 @@ public class DeleteQuery {
             }
             int rs = preparedStatement.executeUpdate();
             Database.releaseConn(conn);
-
+            System.out.println(sql);
             return rs;
         });
 
@@ -202,29 +137,26 @@ public class DeleteQuery {
             return -1;
         } catch (ExecutionException e) {
             System.out.println("Something went wrong in the query");
+            e.printStackTrace();
             return -1;
         }
-
-
     }
 
     private <T> void buildDelete(T obj, String[] colNames) {
-        StringBuilder sqlStr = new StringBuilder("Delete from");
+        StringBuilder sqlStr = new StringBuilder("Delete from ");
         sqlStr.append(obj.getClass().getSimpleName() + " ");
         sqlStr.append("Where ");
         for (String colname : colNames) {
-            sqlStr.append(colname + " = " + "?" + "AND");
+            sqlStr.append(colname + " = " + "?" + " AND ");
         }
 
-        sql = sqlStr.delete(sqlStr.length() - 3, sqlStr.length());
-        System.out.println(sql);
-
-
+        sql = sqlStr.delete(sqlStr.length() - 4, sqlStr.length());
+//        System.out.println(sql);
     }
 
     public <T> int delete(T obj) {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+            //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             Field[] fields = buildDelete(obj);
             Connection conn = Database.accessPool();
@@ -275,7 +207,7 @@ public class DeleteQuery {
                 pks.add(pk);
             }
         }
-        System.out.println(pks.size());
+        //System.out.println(pks.size());
         for (Field field : pks) {
             try {
                 field.setAccessible(true);
@@ -291,25 +223,7 @@ public class DeleteQuery {
         }
 
         sql.append(sqlFields);
-        System.out.println(sql);
+        //System.out.println(sql);
         return pks.toArray(new Field[0]);
     }
-
-//    public static <T> int executeDelete(TableModel table, Field...fields) {
-//        buildInsert(table.getTableName(), fields);
-//        System.out.println(sql);
-////        Connection connection = null;
-////        try {
-////            connection = DBConnection.getConnection();
-////            preparedStatement = connection.prepareStatement(sql.toString());
-////             return preparedStatement.executeUpdate();
-////        } catch (SQLException e) {
-////            e.printStackTrace();
-////            return -1;
-////        }
-//        return 27;
-//
-//    }
-
-
 }

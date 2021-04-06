@@ -38,12 +38,7 @@ public class CheckIfTableExists {
 
             return rs;
         });
-
-
-        try
-
-
-        {
+        try {
             queryResult = (ResultSet) future.get();
 
         } catch (InterruptedException | ExecutionException e) {
@@ -63,33 +58,5 @@ public class CheckIfTableExists {
 
 
         return false;
-
-
-//        //sql.append("Select table_name from Information_Schema.Tables where Table_Name = " + tableName);
-////        sql.append("Select * from "+ tableName);
-//        sql.append("Create table " + tableName + "(id int)");
-//
-//        try {
-//            connection = DBConnection.getConnection();
-////            ResultSet rset = connection.getMetaData().getTables(null, null, tableName, null);
-////            System.out.println(rset);
-//
-//            preparedStatement = connection.prepareStatement(sql.toString());
-//            preparedStatement.executeUpdate();
-//
-//
-//        } catch (SQLException e) {
-//            if (e.getErrorCode() == 42101) {
-//                System.out.println("Table already exists ");
-//            } else {
-//                e.printStackTrace();
-//            }
-//            return false;
-//        }
-//        return false;
-//    }
-
-
-
-}
+    }
 }

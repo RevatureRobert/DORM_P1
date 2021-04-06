@@ -30,43 +30,56 @@ public class CreateTableQuery {
     static Map<String, String> types = new HashMap<>();
     private static int queryResult;
 
+    static {
+        // Not sure what to do about the String
+        // Can always add and adjust
+
+        types.put("String", "varchar(512)");
+        types.put("int", "int");
+        types.put("long", "BigInt");
+        types.put("float", "DECIMAL(50,10)");
+        types.put("double", "BigINT");
+        types.put("byte[]", "LongVarBinary");
+        types.put("Date", "Date");
+        types.put("LocalDate", "Date");
+        types.put("Time", "Time");
+        types.put("TimeStamp", "TimeStamp");
+
+    }
+
 
     public CreateTableQuery() {
 
     }
 
-    private static <T> StringBuilder buildCreate(T obj){
+    private static <T> StringBuilder buildCreate(T obj) {
         Class objClazz = obj.getClass();
         StringBuilder sqlStr = new StringBuilder();
         sqlStr.append("Create table IF NOT exists " + objClazz.getSimpleName());
         StringBuilder sqlFields = new StringBuilder();
-        for(Field fields : objClazz.getDeclaredFields()){
-            if(!getSQlCreateQuery(fields).equals(""))
+       // System.out.println(objClazz.getSimpleName());
+        for (Field fields : objClazz.getDeclaredFields()) {
+            if (!getSQlCreateQuery(fields).equals(""))
                 sqlFields.append(getSQlCreateQuery(fields) + ",");
         }
-//        System.out.println(sqlFields);
-        sqlStr.append("(" + sqlFields.deleteCharAt(sqlFields.length()-1) + ");" );
+        sqlStr.append("(" + sqlFields.deleteCharAt(sqlFields.length() - 1) + ");");
         return sqlStr;
     }
 
     private static void buildCreate(TableModel table) {
-
         sql.append("Create table IF NOT Exists " + table.getTableName());
         StringBuilder sqlFields = new StringBuilder();
         for (Field field : table.getColumns()) {
             sqlFields.append(getSQlCreateQuery(field) + ",");
         }
 //        System.out.println(sqlFields);
-        sql.append("(" + sqlFields.deleteCharAt(sqlFields.length()-1) + ");" );
+        sql.append("(" + sqlFields.deleteCharAt(sqlFields.length() - 1) + ");");
 //        System.out.println("Before in the sql "+sql);
-       for(Field field : table.getAllForeignKeysArray()){
+        for (Field field : table.getAllForeignKeysArray()) {
 //           System.out.println(field);
-           sql.append(new ForeignKeyCheck().buildFK(field));
-       }
+            sql.append(new ForeignKeyCheck().buildFK(field));
+        }
 
-
-
-//        System.out.println( "In build "+ sql);
     }
 
 
@@ -76,10 +89,9 @@ public class CreateTableQuery {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
             //System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
-            initlizeMap();
             buildCreate(table);
             Connection conn = Database.accessPool();
-            System.out.println(sql);
+            //System.out.println(sql);
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
             Database.releaseConn(conn);
@@ -101,13 +113,11 @@ public class CreateTableQuery {
 
     }
 
-    public <T> boolean createTable(T obj){
+    public <T> boolean createTable(T obj) {
 
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
             //System.out.println(Thread.currentThread().getId());
-
-            initlizeMap();
-             sql = buildCreate(obj);
+            sql = buildCreate(obj);
             Connection conn = Database.accessPool();
             preparedStatement = conn.prepareStatement(sql.toString());
             int rs = preparedStatement.executeUpdate();
@@ -124,7 +134,7 @@ public class CreateTableQuery {
         } catch (InterruptedException | ExecutionException e) {
             System.out.println("Something went wrong in create");
             System.out.println(e.getMessage());
-            e.printStackTrace();
+//            e.printStackTrace();
             return false;
         }
 
@@ -137,13 +147,13 @@ public class CreateTableQuery {
         if (field.getDeclaredAnnotations().length > 0) {
             StringBuilder returnStr = new StringBuilder(field.getName() + " " + getSQLType(field.getType().getSimpleName()));
             if (field.isAnnotationPresent(FieldName.class)) {
-                if(field.getAnnotation(FieldName.class).notNull()){
+                if (field.getAnnotation(FieldName.class).notNull()) {
                     returnStr.append(" Not Null");
                 }
-                if(field.getAnnotation(FieldName.class).unique()){
+                if (field.getAnnotation(FieldName.class).unique()) {
                     returnStr.append(" Unique");
                 }
-                if(!field.getAnnotation(FieldName.class).Check().equals("")){
+                if (!field.getAnnotation(FieldName.class).Check().equals("")) {
                     returnStr.append(" Check (" + field.getAnnotation(FieldName.class).Check() + ")");
                 }
                 if (!field.getAnnotation(FieldName.class).defaultVal().equals("")) {
@@ -152,7 +162,7 @@ public class CreateTableQuery {
                 //There is a check constraint on the field
                 // Only allow one constraint on one column or else it will break
 
-            return returnStr.toString();
+                return returnStr.toString();
             }
             // I'm not sure what to do with the quotes im just gonna pray it works im not sure
             else if (field.isAnnotationPresent(PrimaryKey.class)) {
@@ -164,48 +174,14 @@ public class CreateTableQuery {
                     returnStr.append(" Default " + field.getAnnotation(PrimaryKey.class).defaultVal());
                 }
                 return returnStr.toString();
-            }else if(field.isAnnotationPresent(ForeignKey.class)){
-               return returnStr.toString();
+            } else if (field.isAnnotationPresent(ForeignKey.class)) {
+                return returnStr.toString();
             }
 
 
         }
 
-        return "";
-    }
-
-
-//    private static void checkForFks(TableModel tableModel){
-//        if(tableModel.getAllForeignKeysArray().length >0){
-//            for(Field field : tableModel.getAllForeignKeysArray()){
-//                isFKValid.add(new ForeignKeyCheck().isFKValid( field.getAnnotation(ForeignKey.class).tableReferencing(), field.getAnnotation(ForeignKey.class).ColumnReferencing()));
-//            }
-//
-//        }
-//    }
-
-
-    public static Class getFieldtype(Field field) {
-        return field.getType();
-    }
-
-    private static String returnType(Field field) {
-        return getFieldtype(field).getSimpleName();
-    }
-
-    // Not sure what to do about the String
-    // Can always add and adjust
-    private static void initlizeMap() {
-        types.put("String", "varchar(512)");
-        types.put("int", "int");
-        types.put("long", "BigInt");
-        types.put("float", "Real");
-        types.put("double", "double");
-        types.put("byte[]", "LongVarBinary");
-        types.put("Date", "Date");
-        types.put("LocalDate" ,"Date");
-        types.put("Time", "Time");
-        types.put("TimeStamp", "TimeStamp");
+        return new StringBuilder(field.getName() + " " + getSQLType(field.getType().getSimpleName())).toString();
     }
 
 
@@ -234,11 +210,9 @@ public class CreateTableQuery {
             try {
                 return formatter.parse(value);
             } catch (ParseException e) {
-                e.printStackTrace();
+                System.out.println("Something went wrong in the date formatter");
             }
         }
-
-
         return null;
     }
 
