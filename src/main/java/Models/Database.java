@@ -31,7 +31,8 @@ public class Database {
         try {
             ReadingPropertyFile reader = new ReadingPropertyFile();
             connectionPool = BasicConnPool
-                    .create(reader.getProp("postgres.url"), reader.getProp("postgres.username"), reader.getProp("postgres.access"), reader.getProp("postgres.classForName"));
+                    .create(reader.getProp("postgres.url"), reader.getProp("postgres.username"),
+                            reader.getProp("postgres.access"), reader.getProp("postgres.classForName"));
         } catch (
                 SQLException e) {
             e.printStackTrace();
@@ -60,7 +61,7 @@ public class Database {
         }
         try {
             connectionPool = BasicConnPool
-                    .create("postgres", "RevaturePro", "jdbc:postgresql://project1db.cbo6usfmqg0y.us-east-2.rds.amazonaws.com/postgres", " org.postgresql.Driver");
+                    .create("postgres", "RevaturePro", "jdbc:postgresql://project1db.cbo6usfmqg0y.us-east-2.rds.amazonaws.com/postgres", "org.postgresql.Driver");
         } catch (
                 SQLException e) {
             e.printStackTrace();
