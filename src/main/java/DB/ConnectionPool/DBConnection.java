@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
+@Deprecated
 public class DBConnection {
     //    static String jdbcUrl = "jdbc:h2:tcp://localhost/~/test-user=sa;DATABASE_TO_UPPER=false";
     static String jdbcUrl = "jdbc:h2:tcp://localhost/~/test";

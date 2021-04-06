@@ -19,7 +19,7 @@ public class DropQuery {
 
     public boolean executeDrop(TableModel table) {
         Future future = MakeThreadPool.executorService.submit((Callable) () -> {
-            System.out.println(Thread.currentThread().getId());
+           // System.out.println(Thread.currentThread().getId());
             sql = new StringBuilder();
             buildDrop(table);
             Connection conn = Database.accessPool();
@@ -32,19 +32,12 @@ public class DropQuery {
 
         try {
             queryResult = (int) future.get();
+            return true;
 
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            System.out.println("There was an issue dropping table " +  table.getTableName());
             return false;
         }
-
-        if (queryResult > 0) {
-            System.out.println(queryResult);
-            return true;
-        }
-
-
-        return false;
 
     }
 

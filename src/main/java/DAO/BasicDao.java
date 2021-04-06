@@ -1,7 +1,6 @@
 package DAO;
 
 import DB.Queries.*;
-import DB.Queries.TCL.TransactionDAO;
 import Models.TableModel;
 
 import java.lang.reflect.Field;
@@ -9,17 +8,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class BasicDao implements DAOUtil {
-    @Override
+
     public boolean CreateTable(TableModel table) {
         return CreateTableQuery.executeCreate(table);
     }
 
-    @Override
     public boolean checkIfExists(String tableName) {
         return new CheckIfTableExists().executeCheckExists(tableName);
     }
 
-    @Override
     public <T> boolean insertIntoTable(T obj) {
         return InsertQuery.executeInsert((TableModel) obj);
     }
@@ -27,19 +24,6 @@ public class BasicDao implements DAOUtil {
     public <T> boolean insertIntoTable(T obj, TableModel table) {
 
         return InsertQuery.executeInsert(obj, table);
-    }
-
-    // I need more
-    // Maybe just search on PKS of the object
-    @Override
-    public <T> T findByID(T obj) {
-
-         return null;
-    }
-
-    @Override
-    public <T> T showAll() {
-        return null;
     }
 
     public boolean readTable(TableModel table , Field...fields){
@@ -59,21 +43,12 @@ public class BasicDao implements DAOUtil {
         return new ReadQuery().executeRead(obj);
     }
 
-    @Override
-    public int updateByID(int i) {
-        return 0;
-    }
-
-    @Override
-    public int updateRow(TableModel table) {
-        return UpdateQuery.executeUpdate(table);
-    }
 
     // Should return -2 if the object is not the right type
     // In this case in needs to be a table model
     // might be for everyone but not sure
     // I dont know what im doing
-    @Override
+
     public int delete(TableModel table) {
 //        TableModel tableModel = new TableModel();
 //        if( tableModel.getClass() != obj.getClass()){
@@ -81,12 +56,6 @@ public class BasicDao implements DAOUtil {
 //        }
         return new DeleteQuery().delete(table);
     }
-
-    @Override
-    public int deleteById(int id) {
-        return 0;
-    }
-
 
     public boolean deleteById(String tableName, Field[] fields, String[] values) {
         return DeleteQuery.executeDelete( tableName,  fields,  values);
@@ -96,7 +65,7 @@ public class BasicDao implements DAOUtil {
 //        return DeleteQuery.executeDelete(tablename, id);
 //    }
 
-    public boolean insertIntoTable(String tableName, Field[] colName, String[] colVal) {
+    public int insertIntoTable(String tableName, Field[] colName, String[] colVal) {
         return InsertQuery.executeInsert(tableName, colName ,colVal);
     }
 
@@ -113,7 +82,14 @@ public class BasicDao implements DAOUtil {
     }
 
   public <T> boolean insert(T... obj){
-        return InsertQuery.insert(obj);
+       boolean success =  false;
+        for(T instance : obj){
+            success = InsertQuery.insert(instance);
+            if(!success){
+                break;
+            }
+        }
+        return success;
   }
 
     public <T> boolean create(T obj){
@@ -135,8 +111,7 @@ public class BasicDao implements DAOUtil {
     public <T> int update(T obj , T obj2){
         return UpdateQuery.executeUpdate(obj ,obj2);
     }
-    // Not sure if this works
-    //Lets say its still in beta
+
     @Deprecated
     public int update(TableModel obj){
         return UpdateQuery.executeUpdate(obj);
@@ -165,8 +140,5 @@ public class BasicDao implements DAOUtil {
     public <T> ResultSet readRow(T obj){
         return ReadQuery.readRow(obj);
     }
-
-
-
 
 }

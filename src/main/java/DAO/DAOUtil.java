@@ -2,25 +2,27 @@ package DAO;
 
 import Models.TableModel;
 
+import java.sql.ResultSet;
+
 public interface DAOUtil {
 
-    boolean CreateTable(TableModel table);
+     <T> boolean insert(T obj);
 
-    boolean checkIfExists(String tableName);
+     <T> boolean create(T obj);
 
-    <T> boolean insertIntoTable(T obj);
+     boolean create(TableModel t);
 
-    // Not sure what to return for the select type
-    // should it be just the
-     <T> T findByID(T obj );
+     <T> int update(T obj);
 
-    <T> T showAll();
+     <T> int delete(T obj);
 
-    int updateByID(int i);
+     <T> boolean drop(T obj);
 
-    int updateRow(TableModel table);
+     <T> ResultSet read(T obj);
 
-    int delete(TableModel table);
+     <T> ResultSet readAll(T obj);
 
-     int deleteById(int id);
+     <T> ResultSet readRow(T obj);
+
+
 }

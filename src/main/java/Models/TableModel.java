@@ -235,19 +235,6 @@ public class TableModel {
     }
 
 
-    public Class getFieldtype(Field field) {
-        return field.getType();
-    }
-//    public Field getField(String fieldName){
-//        for(Field fields :allFields){
-//            if(fields.getName().equalsIgnoreCase(fieldName)){
-//                return fields;
-//            }
-//        }
-//        return null;
-//
-//    }
-
 
     //Todo :Make it so that whatever table it is comming from it uses that an an object
     /*
@@ -314,7 +301,4 @@ public class TableModel {
                 '}';
     }
 
-    public void printField(Field field) {
-        System.out.println("Field name" + field.getName());
-    }
 }
