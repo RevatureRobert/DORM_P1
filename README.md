@@ -26,10 +26,9 @@ To-do list:
 1. git clone https://github.com/DanielsTeam/DORM_P1
 2. open the project in either eclipse or intellj
 3. run the maven command mvn install (This will install the project into your local maven repo)
-4. Add it as a depenedcy 
-    "<dependency>"
-        "<groupId>org.example</groupId>"
-        "<artifactId>ORMProject1</artifactId>"
-        "<version>1.0-SNAPSHOT</version>"
-    "</dependency>"    
-
+4. Add it as a depenedcy <br />
+     `<dependency>`<br />
+        `<groupId>org.example</groupId>` <br />
+        `<artifactId>ORMProject1</artifactId>`<br />
+        `<version>1.0-SNAPSHOT</version>`   <br /> 
+     `</dependency>`<br />
